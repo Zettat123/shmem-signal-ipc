@@ -1,11 +1,14 @@
+#include <fcntl.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 int create_shm_fd(char* name, int size) {
   int fd = shm_open(name, O_CREAT | O_RDWR | O_EXCL, 0777);
 
-  if (c2sfd < 0) {
+  if (fd < 0) {
     fd = shm_open(name, O_RDWR, 0777);
 
     ftruncate(fd, size);

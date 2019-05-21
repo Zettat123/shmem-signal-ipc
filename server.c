@@ -1,6 +1,8 @@
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include "fanzai_ipc.h"
 
@@ -9,7 +11,10 @@
 #define C2SSHM "/c2sshm"
 #define S2CSHM "/s2cshm"
 
-void read_chardev(char* buffer, int size) { syscall(392, buffer, size); }
+void read_chardev(char* buffer, int size) {
+  int i = 0;
+  for (i; i < size; i++) buffer[i] = 'a';
+}
 
 int main() {
   int c2sfd = create_shm_fd(C2SSHM, C2S_MAX_SIZE);
@@ -41,7 +46,7 @@ int main() {
   s2cbuf[0] = 0;
   while (1) {
     if (c2sbuf[0] == lastc2scounter) {
-      printf("No request.\n");
+      // printf("No request.\n");
     } else {
       printf("Request detected, counter is %d\n", c2sbuf[0]);
       int buffer_size = c2sbuf[1];

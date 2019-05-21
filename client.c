@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "fanzai_ipc.h"
 
 #define C2S_MAX_SIZE 128
@@ -16,6 +21,9 @@ int main(int argc, char* argv[]) {
   int s2cfd = create_shm_fd(S2CSHM, S2C_MAX_SIZE);
   char* s2cbuf = (char*)create_shm_buf(S2C_MAX_SIZE, s2cfd);
   close(s2cfd);
+
+  int i = 0;
+  c2sbuf[0] = 0;
 
   for (i; i < times; i++) {
     c2sbuf[0] = 1 - c2sbuf[0];
