@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -11,12 +12,31 @@
 #define C2SSHM "/c2sshm"
 #define S2CSHM "/s2cshm"
 
-void read_chardev(char* buffer, int size) {
-  int i = 0;
-  for (i; i < size; i++) buffer[i] = 'a';
+void read_chardev(char* buffer, int size) { syscall(392, buffer, size); }
+
+void handler(int signum, siginfo_t* info, void* context) {
+  if (signum == SIGUSR1)
+    printf("signal: %d\n", signum);
+  else
+    printf("error\n");
+
+  if (context) {
+    printf("content: %d\n", info->si_int);
+    printf("content: %d\n", info->si_value.sival_int);
+  }
 }
 
 int main() {
+  struct sigaction act;
+  act.sa_sigaction = handler;
+  act.sa_flags = SA_SIGINFO;
+
+  sigaction(SIGUSR1, &act, NULL);
+
+  for (;;) {
+    sleep(10000);
+  }
+
   int c2sfd = create_shm_fd(C2SSHM, C2S_MAX_SIZE);
 
   //   if (c2sfd < 0) {
@@ -44,19 +64,19 @@ int main() {
 
   int lastc2scounter = c2sbuf[0];
   s2cbuf[0] = 0;
-  while (1) {
-    if (c2sbuf[0] == lastc2scounter) {
-      // printf("No request.\n");
-    } else {
-      printf("Request detected, counter is %d\n", c2sbuf[0]);
-      int buffer_size = c2sbuf[1];
-      read_chardev(s2cbuf + sizeof(char), buffer_size);
-      s2cbuf[0] = 1 - s2cbuf[0];
-      lastc2scounter = c2sbuf[0];
-    }
+  // while (1) {
+  //   if (c2sbuf[0] == lastc2scounter) {
+  //     // printf("No request.\n");
+  //   } else {
+  //     printf("Request detected, counter is %d\n", c2sbuf[0]);
+  //     int buffer_size = c2sbuf[1];
+  //     read_chardev(s2cbuf + sizeof(char), buffer_size);
+  //     s2cbuf[0] = 1 - s2cbuf[0];
+  //     lastc2scounter = c2sbuf[0];
+  //   }
 
-    // sleep(1);
-  }
+  //   // sleep(1);
+  // }
 
   shm_unlink(C2SSHM);
   shm_unlink(S2CSHM);

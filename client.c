@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +15,11 @@ int main(int argc, char* argv[]) {
   int times = atoi(argv[1]);
   int size = atoi(argv[2]);
 
+  union sigval val;
+  val.sival_int = size;
+  printf("send: %d\n", size);
+  sigqueue(9730, SIGUSR1, val);
+
   int c2sfd = create_shm_fd(C2SSHM, C2S_MAX_SIZE);
   int* c2sbuf = (int*)create_shm_buf(C2S_MAX_SIZE, c2sfd);
   close(c2sfd);
@@ -25,16 +31,16 @@ int main(int argc, char* argv[]) {
   int i = 0;
   c2sbuf[0] = 0;
 
-  for (i; i < times; i++) {
-    c2sbuf[0] = 1 - c2sbuf[0];
-    c2sbuf[1] = size;
-    char lasts2ccounter = s2cbuf[0];
-    while (s2cbuf[0] == lasts2ccounter)
-      ;
-    printf("%s\n", s2cbuf + sizeof(char));
+  // for (i; i < times; i++) {
+  //   c2sbuf[0] = 1 - c2sbuf[0];
+  //   c2sbuf[1] = size;
+  //   char lasts2ccounter = s2cbuf[0];
+  //   while (s2cbuf[0] == lasts2ccounter)
+  //     ;
+  //   printf("%s\n", s2cbuf + sizeof(char));
 
-    // sleep(1);
-  }
+  //   // sleep(1);
+  // }
 
   return 0;
 }
