@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include "fanzai_ipc.h"
@@ -12,13 +13,9 @@
 #define S2CSHM "/s2cshm"
 
 int main(int argc, char* argv[]) {
-  int times = atoi(argv[1]);
-  int size = atoi(argv[2]);
-
-  union sigval val;
-  val.sival_int = size;
-  printf("send: %d\n", size);
-  sigqueue(9730, SIGUSR1, val);
+  int server_pid = atoi(argv[1]);
+  int times = atoi(argv[2]);
+  int size = atoi(argv[3]);
 
   int c2sfd = create_shm_fd(C2SSHM, C2S_MAX_SIZE);
   int* c2sbuf = (int*)create_shm_buf(C2S_MAX_SIZE, c2sfd);
@@ -29,18 +26,27 @@ int main(int argc, char* argv[]) {
   close(s2cfd);
 
   int i = 0;
-  c2sbuf[0] = 0;
 
-  // for (i; i < times; i++) {
-  //   c2sbuf[0] = 1 - c2sbuf[0];
-  //   c2sbuf[1] = size;
-  //   char lasts2ccounter = s2cbuf[0];
-  //   while (s2cbuf[0] == lasts2ccounter)
-  //     ;
-  //   printf("%s\n", s2cbuf + sizeof(char));
+  struct timeval tv0, tv1;
+  gettimeofday(&tv0, NULL);
 
-  //   // sleep(1);
-  // }
+  for (i; i < times; i++) {
+    c2sbuf[0] = size;
+    char lasts2ccounter = s2cbuf[0];
+    kill(server_pid, FANZAI_SIGNAL);
+    while (s2cbuf[0] == lasts2ccounter)
+      ;
+    // s2cbuf[sizeof(char) + size] = '\0';
+    // printf("%s\n", s2cbuf + sizeof(char));
+
+    // sleep(1);
+  }
+
+  gettimeofday(&tv1, NULL);
+
+  printf("time0 = %ld.%ld\ntime1 = %ld.%ld\nInterval = %ld us\n", tv0.tv_sec,
+         tv0.tv_usec, tv1.tv_sec, tv1.tv_usec,
+         (tv1.tv_sec - tv0.tv_sec) * 1000000 + (tv1.tv_usec - tv0.tv_usec));
 
   return 0;
 }
