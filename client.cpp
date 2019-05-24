@@ -36,17 +36,17 @@ int main(int argc, char* argv[]) {
     kill(server_pid, FANZAI_SIGNAL);
     while (s2cbuf[0] == lasts2ccounter)
       ;
-    // s2cbuf[sizeof(char) + size] = '\0';
-    // printf("%s\n", s2cbuf + sizeof(char));
+    s2cbuf[sizeof(char) + size] = '\0';
+    printf("%s\n", s2cbuf + sizeof(char));
 
     // sleep(1);
   }
 
   gettimeofday(&tv1, NULL);
 
-  printf("time0 = %ld.%ld\ntime1 = %ld.%ld\nInterval = %ld us\n", tv0.tv_sec,
-         tv0.tv_usec, tv1.tv_sec, tv1.tv_usec,
-         (tv1.tv_sec - tv0.tv_sec) * 1000000 + (tv1.tv_usec - tv0.tv_usec));
+  // printf("time0 = %ld.%ld\ntime1 = %ld.%ld\nInterval = %ld us\n", tv0.tv_sec,
+  //        tv0.tv_usec, tv1.tv_sec, tv1.tv_usec,
+  //        (tv1.tv_sec - tv0.tv_sec) * 1000000 + (tv1.tv_usec - tv0.tv_usec));
 
   return 0;
 }

@@ -15,22 +15,17 @@
 int* c2sbuf;
 char* s2cbuf;
 
-void read_chardev(char* buffer, int size) {
-  syscall(392, buffer, size);
-  // int i = 0;
-  // for (i; i < size; i++) {
-  //   buffer[i] = 'a';
-  // }
-}
+void read_chardev(char* buffer, int size) { syscall(392, buffer, size); }
 
 void handler(int signum) {
   if (signum == FANZAI_SIGNAL) {
-    // printf("Signal: %d\n", signum);
+    printf("Server pid is: %d\n", getpid());
+    printf("Signal: %d\n", signum);
     int buffer_size = c2sbuf[0];
-    // printf("Received buffer size is: %d\n", buffer_size);
+    printf("Received buffer size is: %d\n", buffer_size);
     read_chardev(s2cbuf + sizeof(char), buffer_size);
     s2cbuf[0] = 1 - s2cbuf[0];
-    // printf("Handle signal OK!\n");
+    printf("Handle signal OK!\n");
   }
 
   else

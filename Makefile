@@ -1,14 +1,14 @@
-all: client server
+all: client chardev_service
 
-fanzai_ipc.o: fanzai_ipc.c fanzai_ipc.h
-	gcc -c fanzai_ipc.c -o $@
+fanzai_ipc.o: fanzai_ipc.cpp fanzai_ipc.h
+	g++ --std=c++11 -c fanzai_ipc.cpp -o $@
 
-client: client.c fanzai_ipc.o
-	gcc -o $@ client.c fanzai_ipc.o -lrt
+client: client.cpp fanzai_ipc.o
+	g++ --std=c++11 -o $@ client.cpp fanzai_ipc.o -lrt
 
-server: server.c fanzai_ipc.o
-	gcc -o $@ server.c fanzai_ipc.o -lrt
+chardev_service: chardev_service.cpp fanzai_ipc.o
+	g++ --std=c++11 -o $@ chardev_service.cpp fanzai_ipc.o -lrt
 
 
 clean:
-	rm client server *.o
+	rm client chardev_service *.o
