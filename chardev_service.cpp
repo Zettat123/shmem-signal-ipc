@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string>
 
 #include "fanzai_ipc.h"
 
@@ -11,11 +12,15 @@
 #define S2C_MAX_SIZE 65536 + 10
 #define C2SSHM "/c2sshm"
 #define S2CSHM "/s2cshm"
+#define SERVICE_NAME "CHARDEV_SERVICE"
 
 int* c2sbuf;
 char* s2cbuf;
 
-void read_chardev(char* buffer, int size) { syscall(392, buffer, size); }
+void read_chardev(char* buffer, int size) {
+  int i = 0;
+  for (i; i < size; i++) buffer[i] = 'a';
+}
 
 void handler(int signum) {
   if (signum == FANZAI_SIGNAL) {
@@ -33,6 +38,8 @@ void handler(int signum) {
 }
 
 int main() {
+  update_service_map(SERVICE_NAME, getpid());
+
   int c2sfd = create_shm_fd(C2SSHM, C2S_MAX_SIZE);
   c2sbuf = (int*)create_shm_buf(C2S_MAX_SIZE, c2sfd);
   close(c2sfd);
