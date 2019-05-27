@@ -8,7 +8,9 @@ using namespace std;
 
 typedef map<string, pid_t> FanzaiServiceMap;
 
-int create_shm_fd(char* name, int size);
-void* create_shm_buf(int length, int fd);
-int remove_service_from_map(char* serviceName);
-int update_service_map(string serviceName, pid_t pid);
+class FanzaiIPC {
+ private:
+ public:
+  static FanzaiServiceMap readMapFromFile();
+  static int writeMapToFile(FanzaiServiceMap newMap);
+}
