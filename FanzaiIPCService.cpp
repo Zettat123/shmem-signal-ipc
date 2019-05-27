@@ -6,12 +6,17 @@ FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
   this->serviceName = serviceName;
   this->servicePid = servicePid;
   this->serviceSignalHandler = NULL;
+
+  if (FanzaiIPC.insertProcessToMap(serviceName, pid,
+                                   SERVICE_MAP_FILE_LOCATION) == -1) {
+    throw "Same service name error\n";
+  }
 }
 
 int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
   this->serviceSignalHandler = newHandler;
-  return FanzaiIPC.insertProcessToMap(serviceName, pid,
-                                      SERVICE_MAP_FILE_LOCATION);
+
+  return 0;
 }
 
 FanzaiIPCService::~FanzaiIPCService() {

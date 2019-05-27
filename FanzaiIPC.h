@@ -3,7 +3,7 @@
 
 #define FANZAI_SIGNAL SIGUSR1
 #define SERVICE_MAP_FILE_LOCATION "/home/fanzai/FanzaiServiceMap.dat"
-#define CLIENT_MAP_FILE_LOCATION "/home/fanzai/FanzaiProcessMap.dat"
+#define CLIENT_MAP_FILE_LOCATION "/home/fanzai/FanzaiClientMap.dat"
 
 using namespace std;
 
@@ -26,5 +26,6 @@ class FanzaiIPC {
   static FanzaiProcessMap readMapFromFile(string mapFile);
   static int writeMapToFile(FanzaiProcessMap newMap, string mapFile);
   static int insertProcessToMap(string name, pid_t pid, string mapFile);
-  static int removeProcessFromMap(char* name, string mapFile);
+  static int removeProcessFromMap(string name, string mapFile);
+  static pid_t getPidByName(string name, string mapFile);
 }

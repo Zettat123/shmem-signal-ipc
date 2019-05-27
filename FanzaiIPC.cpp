@@ -49,10 +49,20 @@ int FanzaiIPC::insertProcessToMap(string name, pid_t pid, string mapFile) {
   return 0;
 }
 
-int FanzaiIPC::removeProcessFromMap(char* name, string mapFile) {
+int FanzaiIPC::removeProcessFromMap(string name, string mapFile) {
   FanzaiProcessMap fsm = FanzaiIPC.read_map_from_file(mapFile);
   fsm.erase(name);
   FanzaiIPC.write_map_to_file(fsm, mapFile);
 
   return 0;
+}
+
+pid_t FanzaiIPC::getPidByName(string name, string mapFile) {
+  FanzaiProcessMap fsm = FanzaiIPC.read_map_from_file(mapFile);
+  FanzaiProcessMap::iterator it = fsm.find(name);
+  if (it == fsm.end()) {
+    throw "No this service";
+  }
+
+  return it->second;
 }
