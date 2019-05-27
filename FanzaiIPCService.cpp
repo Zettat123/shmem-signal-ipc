@@ -1,27 +1,20 @@
+#include <stdio.h>
+
 #include "FanzaiIPCService.h"
 
 FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
-  this.serviceName = serviceName;
-  this.servicePid = servicePid;
-  this.serviceSignalHandler = NULL;
+  this->serviceName = serviceName;
+  this->servicePid = servicePid;
+  this->serviceSignalHandler = NULL;
 }
 
-void FanzaiIPCService::updateHandler(handler newHandler) {
-  this.serviceSignalHandler = newHandler;
+int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
+  this->serviceSignalHandler = newHandler;
+  return FanzaiIPC.insertProcessToMap(serviceName, pid,
+                                      SERVICE_MAP_FILE_LOCATION);
 }
 
-int FanzaiIPCService::updateServiceMap(string serviceName, pid_t pid) {
-  FanzaiServiceMap fsm = read_map_from_file();
-  fsm[serviceName] = pid;
-  write_map_to_file(fsm);
-
-  return 0;
-}
-
-int FanzaiIPCService::removeServiceFromMap(char* serviceName) {
-  FanzaiServiceMap fsm = read_map_from_file();
-  fsm.erase(serviceName);
-  write_map_to_file(fsm);
-
-  return 0;
+FanzaiIPCService::~FanzaiIPCService() {
+  FanzaiIPC.removeProcessFromMap(this->serviceName);
+  printf("Service %s has been removed.\n", this->serviceName);
 }
