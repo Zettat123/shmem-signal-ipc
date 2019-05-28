@@ -9,18 +9,18 @@
 #include <iostream>
 #include <utility>
 
-#include "FanzaiIPC.h"
+// #include "FanzaiIPC.h"
 #include "FanzaiIPCClient.h"
 
 FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
-                                pid_t clientPid, int bufferSize) {
+                                 pid_t clientPid, int bufferSize) {
   this->clientName = clientName;
   this->serviceName = serviceName;
   this->clientPid = clientPid;
   this->bufferSize = bufferSize;
 
   if (FanzaiIPC::insertProcessToMap(serviceName, clientPid,
-                                   CLIENT_MAP_FILE_LOCATION) == -1) {
+                                    CLIENT_MAP_FILE_LOCATION) == -1) {
     throw "Same service name error\n";
   }
 
