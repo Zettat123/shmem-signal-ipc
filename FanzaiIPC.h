@@ -15,6 +15,8 @@ typedef map<string, pid_t> FanzaiProcessMap;
  * 1: Request needs params.
  */
 typedef ipc_metadata {
+  string clientName;
+  int bufferSize;
   char type;
   void* params;
 }
@@ -23,6 +25,8 @@ IPCMetadata;
 class FanzaiIPC {
  private:
  public:
+  static int createShmemFd(string name, int size);
+  static char* createShmemBuf(int length, int fd);
   static FanzaiProcessMap readMapFromFile(string mapFile);
   static int writeMapToFile(FanzaiProcessMap newMap, string mapFile);
   static int insertProcessToMap(string name, pid_t pid, string mapFile);

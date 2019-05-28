@@ -13,8 +13,26 @@ FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
   }
 }
 
+void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
+                                                void* context) {
+  if (signum == FANZAI_SIGNAL) {
+    IPCMetadata* metadata = (IPCMetadata*)info->sival_ptr;
+    this->shmemFd =
+        FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
+    this->shmemBuf =
+        FanzaiIPC::createShmemBuf(metadata->bufferSize, this->shmemFd);
+
+    this->serviceSignalHandler(this->shmemBuf, metadata->bufferSize);
+  }
+}
+
 int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
   this->serviceSignalHandler = newHandler;
+
+  struct sigaction sa;
+  sa.sa_sigaction = FanzaiIPCService::wrapServiceSignalHandler;
+  sa.sa_flags = SA_SIGINFO;
+  sigaction(FANZAI_SIGNAL, &sa, NULL);
 
   return 0;
 }

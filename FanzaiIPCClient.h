@@ -12,9 +12,6 @@ class FanzaiIPCClient : public FanzaiIPC {
   int shmemFd;
   char* shmemBuf;
 
-  int createShmemFd(char* name, int size);
-  char* createShmemBuf(int length, int fd);
-
  public:
   FanzaiIPCClient(string clientName, string serviceName, pid_t clientPid);
   int sendMessage(IPCMetadata* metadata, ClientSignalHandler handler);

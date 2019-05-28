@@ -26,22 +26,6 @@ FanzaiIPClient::FanzaiIPCClient(string clientName, string serviceName,
       FanzaiIPC.getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 }
 
-int FanzaiIPClient::createShmemFd(char* name, int size) {
-  int fd = shm_open(name, O_CREAT | O_RDWR | O_EXCL, 0777);
-
-  if (fd < 0) {
-    fd = shm_open(name, O_RDWR, 0777);
-
-    ftruncate(fd, size);
-  }
-
-  return fd;
-}
-
-char* FanzaiIPClient::createShmemBuf(int length, int fd) {
-  return (char*)mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-}
-
 int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,
                                  ClientSignalHandler handler) {
   // TODO: add callback

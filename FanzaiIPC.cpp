@@ -10,6 +10,22 @@
 
 #include "fanzai_ipc.h"
 
+int FanzaiIPC::createShmemFd(string name, int size) {
+  int fd = shm_open(name, O_CREAT | O_RDWR | O_EXCL, 0777);
+
+  if (fd < 0) {
+    fd = shm_open(name, O_RDWR, 0777);
+
+    ftruncate(fd, size);
+  }
+
+  return fd;
+}
+
+char* FanzaiIPC::createShmemBuf(int length, int fd) {
+  return (char*)mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+}
+
 FanzaiProcessMap FanzaiIPC::readMapFromFile(string mapFile) {
   FanzaiProcessMap resultMap;
   ifstream ins(mapFIle);
