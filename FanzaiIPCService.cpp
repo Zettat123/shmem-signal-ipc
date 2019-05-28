@@ -40,6 +40,6 @@ int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
 }
 
 FanzaiIPCService::~FanzaiIPCService() {
-  FanzaiIPC::removeProcessFromMap(this->serviceName, CLIENT_MAP_FILE_LOCATION);
+  FanzaiIPC::removeProcessFromMap(this->serviceName, SERVICE_MAP_FILE_LOCATION);
   printf("Service %s has been removed.\n", this->serviceName);
 }

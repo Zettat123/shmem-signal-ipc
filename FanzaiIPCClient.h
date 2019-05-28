@@ -17,4 +17,6 @@ class FanzaiIPCClient : public FanzaiIPC {
   FanzaiIPCClient(string clientName, string serviceName, pid_t clientPid,
                   int bufferSize);
   int sendMessage(IPCMetadata* metadata, ClientSignalHandler handler);
+
+  ~FanzaiIPCClient();
 };

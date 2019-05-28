@@ -1,4 +1,4 @@
-#include<signal.h>
+#include <signal.h>
 #include "FanzaiIPC.h"
 
 typedef int (*ServiceSignalHandler)(char *, int);

@@ -38,3 +38,9 @@ int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,
   sv.sival_ptr = (void*)metadata;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
+
+FanzaiIPCClient::~FanzaiIPCClient() {
+  FanzaiIPC::removeProcessFromMap(this->clientName, CLIENT_MAP_FILE_LOCATION);
+  shm_unlink(this->clientName.data());
+  printf("Service %s has been removed.\n", this->clientName);
+}
