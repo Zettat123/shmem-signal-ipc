@@ -1,3 +1,4 @@
+#include<signal.h>
 #include "FanzaiIPC.h"
 
 typedef int (*ServiceSignalHandler)(char *, int);
@@ -20,4 +21,4 @@ class FanzaiIPCService : public FanzaiIPC {
   int updateHandler(ServiceSignalHandler newHandler);
 
   ~FanzaiIPCService();
-}
+};

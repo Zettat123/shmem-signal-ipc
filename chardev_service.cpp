@@ -6,16 +6,7 @@
 #include <unistd.h>
 #include <string>
 
-#include "fanzai_ipc.h"
-
-#define C2S_MAX_SIZE 128
-#define S2C_MAX_SIZE 65536 + 10
-#define C2SSHM "/c2sshm"
-#define S2CSHM "/s2cshm"
-#define SERVICE_NAME "CHARDEV_SERVICE"
-
-int* c2sbuf;
-char* s2cbuf;
+#include "FanzaiIPCService.h"
 
 void read_chardev(char* buffer, int size) {
   int i = 0;

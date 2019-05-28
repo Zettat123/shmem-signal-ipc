@@ -14,7 +14,7 @@ typedef map<string, pid_t> FanzaiProcessMap;
  * 0: No params, params pointer can be ignored.
  * 1: Request needs params.
  */
-typedef ipc_metadata {
+typedef struct ipc_metadata {
   string clientName;
   int bufferSize;
   char type;
@@ -32,4 +32,4 @@ class FanzaiIPC {
   static int insertProcessToMap(string name, pid_t pid, string mapFile);
   static int removeProcessFromMap(string name, string mapFile);
   static pid_t getPidByName(string name, string mapFile);
-}
+};

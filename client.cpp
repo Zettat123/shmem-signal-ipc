@@ -5,12 +5,10 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "fanzai_ipc.h"
+#include "FanzaiIPCClient.h"
 
-#define C2S_MAX_SIZE 128
-#define S2C_MAX_SIZE 65536 + 10
-#define C2SSHM "/c2sshm"
-#define S2CSHM "/s2cshm"
+#define BUFFER_SIZE 65536 + 10
+#define CLIENT_NAME "/test_client"
 
 int main(int argc, char* argv[]) {
   int server_pid = atoi(argv[1]);

@@ -9,25 +9,26 @@
 #include <iostream>
 #include <utility>
 
+#include "FanzaiIPC.h"
 #include "FanzaiIPCClient.h"
 
-FanzaiIPClient::FanzaiIPCClient(string clientName, string serviceName,
+FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
                                 pid_t clientPid, int bufferSize) {
   this->clientName = clientName;
   this->serviceName = serviceName;
   this->clientPid = clientPid;
   this->bufferSize = bufferSize;
 
-  if (FanzaiIPC.insertProcessToMap(serviceName, pid,
+  if (FanzaiIPC::insertProcessToMap(serviceName, clientPid,
                                    CLIENT_MAP_FILE_LOCATION) == -1) {
     throw "Same service name error\n";
   }
 
   this->servicePid =
-      FanzaiIPC.getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
+      FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 
-  this->shmemFd = FanzaiIPC.createShmemFd(clientName, bufferSize);
-  this->shmemBuf = FanzaiIPC.createShmemBuf(bufferSize, this->shmemFd);
+  this->shmemFd = FanzaiIPC::createShmemFd(clientName, bufferSize);
+  this->shmemBuf = FanzaiIPC::createShmemBuf(bufferSize, this->shmemFd);
 }
 
 int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,

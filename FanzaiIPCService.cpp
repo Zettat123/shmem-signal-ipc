@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <signal.h>
 
+#include "FanzaiIPC.h"
 #include "FanzaiIPCService.h"
 
 FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
@@ -7,7 +9,7 @@ FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
   this->servicePid = servicePid;
   this->serviceSignalHandler = NULL;
 
-  if (FanzaiIPC.insertProcessToMap(serviceName, pid,
+  if (FanzaiIPC::insertProcessToMap(serviceName, servicePid,
                                    SERVICE_MAP_FILE_LOCATION) == -1) {
     throw "Same service name error\n";
   }
@@ -16,11 +18,11 @@ FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
 void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                 void* context) {
   if (signum == FANZAI_SIGNAL) {
-    IPCMetadata* metadata = (IPCMetadata*)info->sival_ptr;
+    IPCMetadata* metadata = (IPCMetadata*)info->si_value.sival_ptr;
     this->shmemFd =
-        FanzaiIPC.createShmemFd(metadata->clientName, metadata->bufferSize);
+        FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
     this->shmemBuf =
-        FanzaiIPC.createShmemBuf(metadata->bufferSize, this->shmemFd);
+        FanzaiIPC::createShmemBuf(metadata->bufferSize, this->shmemFd);
 
     this->serviceSignalHandler(this->shmemBuf, metadata->bufferSize);
   }
@@ -30,7 +32,7 @@ int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
   this->serviceSignalHandler = newHandler;
 
   struct sigaction sa;
-  sa.sa_sigaction = FanzaiIPCService::wrapServiceSignalHandler;
+  sa.sa_sigaction = this->wrapServiceSignalHandler;
   sa.sa_flags = SA_SIGINFO;
   sigaction(FANZAI_SIGNAL, &sa, NULL);
 
@@ -38,6 +40,6 @@ int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
 }
 
 FanzaiIPCService::~FanzaiIPCService() {
-  FanzaiIPC.removeProcessFromMap(this->serviceName);
+  FanzaiIPC::removeProcessFromMap(this->serviceName, CLIENT_MAP_FILE_LOCATION);
   printf("Service %s has been removed.\n", this->serviceName);
 }
