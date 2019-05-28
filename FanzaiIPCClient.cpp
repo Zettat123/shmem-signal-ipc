@@ -12,10 +12,11 @@
 #include "FanzaiIPCClient.h"
 
 FanzaiIPClient::FanzaiIPCClient(string clientName, string serviceName,
-                                pid_t clientPid) {
+                                pid_t clientPid, int bufferSize) {
   this->clientName = clientName;
   this->serviceName = serviceName;
   this->clientPid = clientPid;
+  this->bufferSize = bufferSize;
 
   if (FanzaiIPC.insertProcessToMap(serviceName, pid,
                                    CLIENT_MAP_FILE_LOCATION) == -1) {
@@ -24,6 +25,9 @@ FanzaiIPClient::FanzaiIPCClient(string clientName, string serviceName,
 
   this->servicePid =
       FanzaiIPC.getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
+
+  this->shmemFd = FanzaiIPC.createShmemFd(clientName, bufferSize);
+  this->shmemBuf = FanzaiIPC.createShmemBuf(bufferSize, this->shmemFd);
 }
 
 int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,

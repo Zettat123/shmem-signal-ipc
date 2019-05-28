@@ -18,9 +18,9 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
   if (signum == FANZAI_SIGNAL) {
     IPCMetadata* metadata = (IPCMetadata*)info->sival_ptr;
     this->shmemFd =
-        FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
+        FanzaiIPC.createShmemFd(metadata->clientName, metadata->bufferSize);
     this->shmemBuf =
-        FanzaiIPC::createShmemBuf(metadata->bufferSize, this->shmemFd);
+        FanzaiIPC.createShmemBuf(metadata->bufferSize, this->shmemFd);
 
     this->serviceSignalHandler(this->shmemBuf, metadata->bufferSize);
   }
