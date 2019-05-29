@@ -42,5 +42,5 @@ int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,
 FanzaiIPCClient::~FanzaiIPCClient() {
   FanzaiIPC::removeProcessFromMap(this->clientName, CLIENT_MAP_FILE_LOCATION);
   shm_unlink(this->clientName.data());
-  printf("Service %s has been removed.\n", this->clientName);
+  printf("Service %s has been removed.\n", this->clientName.data());
 }

@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include <signal.h>
+#include <stdio.h>
 
-#include "FanzaiIPC.h"
+// #include "FanzaiIPC.h"
 #include "FanzaiIPCService.h"
 
 FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
@@ -10,7 +10,7 @@ FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
   this->serviceSignalHandler = NULL;
 
   if (FanzaiIPC::insertProcessToMap(serviceName, servicePid,
-                                   SERVICE_MAP_FILE_LOCATION) == -1) {
+                                    SERVICE_MAP_FILE_LOCATION) == -1) {
     throw "Same service name error\n";
   }
 }
@@ -41,5 +41,5 @@ int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
 
 FanzaiIPCService::~FanzaiIPCService() {
   FanzaiIPC::removeProcessFromMap(this->serviceName, SERVICE_MAP_FILE_LOCATION);
-  printf("Service %s has been removed.\n", this->serviceName);
+  printf("Service %s has been removed.\n", this->serviceName.data());
 }

@@ -3,7 +3,7 @@
 typedef void (*ClientSignalHandler)();
 // void (*sa_sigaction)(int, siginfo_t *, void *);
 
-class FanzaiIPCClient : public FanzaiIPC {
+class FanzaiIPCClient {
  private:
   string clientName;
   string serviceName;
