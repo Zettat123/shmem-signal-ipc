@@ -1,5 +1,5 @@
 client
-server
+chardev_service
 *.out
 *.o
 .vscode
