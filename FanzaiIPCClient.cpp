@@ -35,7 +35,8 @@ int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,
                                  ClientSignalHandler handler) {
   // TODO: add callback
   union sigval sv;
-  sv.sival_ptr = (void*)metadata;
+  // sv.sival_ptr = (void*)metadata;
+  sv.sival_int = 666;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 

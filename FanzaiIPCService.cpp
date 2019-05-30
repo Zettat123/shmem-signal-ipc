@@ -22,15 +22,16 @@ void FanzaiIPCService::setRawHandler(RawSigactionHandler rsh) {
 void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                 void* context) {
   if (signum == FANZAI_SIGNAL) {
-    IPCMetadata* metadata = (IPCMetadata*)(info->si_value.sival_ptr);
+    // IPCMetadata* metadata = (IPCMetadata*)(info->si_value.sival_ptr);
     printf("1\n");
-    printf("%d\n", metadata->type);
-    this->shmemFd =
-        FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
-    this->shmemBuf =
-        FanzaiIPC::createShmemBuf(metadata->bufferSize, this->shmemFd);
+    printf("%d\n", info->si_value.sival_int);
+    // printf("%d\n", metadata->type);
+    // this->shmemFd =
+    //     FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
+    // this->shmemBuf =
+    //     FanzaiIPC::createShmemBuf(metadata->bufferSize, this->shmemFd);
 
-    this->serviceSignalHandler(this->shmemBuf, metadata->bufferSize);
+    // this->serviceSignalHandler(this->shmemBuf, metadata->bufferSize);
   }
 }
 
