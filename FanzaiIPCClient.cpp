@@ -19,15 +19,15 @@ FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
   this->clientPid = clientPid;
   this->bufferSize = bufferSize;
 
-  if (FanzaiIPC::insertProcessToMap(serviceName, clientPid,
+  if (FanzaiIPC::insertProcessToMap(clientName, clientPid,
                                     CLIENT_MAP_FILE_LOCATION) == -1) {
-    throw "Same service name error\n";
+    throw "Same client name error\n";
   }
 
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 
-  this->shmemFd = FanzaiIPC::createShmemFd(clientName, bufferSize);
+  this->shmemFd = FanzaiIPC::createShmemFd(clientName.data(), bufferSize);
   this->shmemBuf = FanzaiIPC::createShmemBuf(bufferSize, this->shmemFd);
 }
 

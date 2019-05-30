@@ -10,6 +10,7 @@
 #define BUFFER_SIZE 65536 + 10
 
 string CLIENT_NAME = "/test_client";
+string SERVICE_NAME = "CHARDEV_SERVICE";
 
 void handler() {}
 
@@ -17,12 +18,20 @@ int main(int argc, char* argv[]) {
   int times = atoi(argv[1]);
   int size = atoi(argv[2]);
 
-  FanzaiIPCClient fic(CLIENT_NAME, "CHARDEV_SERVICE", getpid(), BUFFER_SIZE);
+  FanzaiIPCClient fic(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
 
   IPCMetadata* metadataPtr = (IPCMetadata*)malloc(sizeof(IPCMetadata));
-  metadataPtr->clientName = CLIENT_NAME;
+
+  printf("%d\n", sizeof(IPCMetadata));
+
+  metadataPtr->clientName = CLIENT_NAME.data();
   metadataPtr->bufferSize = BUFFER_SIZE;
   metadataPtr->type = 0;
+  metadataPtr->params = NULL;
+
+  printf("%s\n", metadataPtr->clientName);
+  printf("%d\n", metadataPtr->bufferSize);
+  printf("%d\n", metadataPtr->type);
 
   fic.sendMessage(metadataPtr, handler);
 

@@ -15,10 +15,16 @@ FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
   }
 }
 
+void FanzaiIPCService::setRawHandler(RawSigactionHandler rsh) {
+  this->rawHandler = rsh;
+}
+
 void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                 void* context) {
   if (signum == FANZAI_SIGNAL) {
-    IPCMetadata* metadata = (IPCMetadata*)info->si_value.sival_ptr;
+    IPCMetadata* metadata = (IPCMetadata*)(info->si_value.sival_ptr);
+    printf("1\n");
+    printf("%d\n", metadata->type);
     this->shmemFd =
         FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
     this->shmemBuf =
@@ -28,23 +34,11 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
   }
 }
 
-// void wrapServiceSignalHandler(int signum, siginfo_t* info, void* context) {
-//     if (signum == FANZAI_SIGNAL) {
-//     IPCMetadata* metadata = (IPCMetadata*)info->si_value.sival_ptr;
-//     int shmemFd =
-//         FanzaiIPC::createShmemFd(metadata->clientName, metadata->bufferSize);
-//     int shmemBuf =
-//         FanzaiIPC::createShmemBuf(metadata->bufferSize, this->shmemFd);
-
-//     this->serviceSignalHandler(this->shmemBuf, metadata->bufferSize);
-//   }
-// }
-
 int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
   this->serviceSignalHandler = newHandler;
 
   struct sigaction sa;
-  sa.sa_sigaction = this->wrapServiceSignalHandler;
+  sa.sa_sigaction = this->rawHandler;
   sa.sa_flags = SA_SIGINFO;
   sigaction(FANZAI_SIGNAL, &sa, NULL);
 

@@ -13,12 +13,13 @@ class FanzaiIPCService : public FanzaiIPC {
   int shmemFd;
   char *shmemBuf;
   ServiceSignalHandler serviceSignalHandler;
-
-  void wrapServiceSignalHandler(int signum, siginfo_t *info, void *context);
+  RawSigactionHandler rawHandler;
 
  public:
   FanzaiIPCService(string serviceName, pid_t servicePid);
   int updateHandler(ServiceSignalHandler newHandler);
+  void wrapServiceSignalHandler(int signum, siginfo_t *info, void *context);
+  void setRawHandler(RawSigactionHandler rsh);
 
   ~FanzaiIPCService();
 };

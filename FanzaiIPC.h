@@ -15,12 +15,11 @@ typedef map<string, pid_t> FanzaiProcessMap;
  * 1: Request needs params.
  */
 typedef struct ipc_metadata {
-  string clientName;
+  const char* clientName;
   int bufferSize;
   char type;
   void* params;
-}
-IPCMetadata;
+} IPCMetadata;
 
 class FanzaiIPC {
  private:
