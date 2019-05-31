@@ -14,14 +14,16 @@ FanzaiIPCService* fis;
 
 void read_chardev(char* buffer, int size) {
   int i = 0;
-  for (i; i < size - 1; i++) buffer[i] = 'a';
+  for (i; i < size; i++) buffer[i] = 'a';
   buffer[i] = '\0';
 }
 
 int handler(void* rawBuf, int buffer_size) {
+  int* paramsBuf = (int*)rawBuf;
+  int size = paramsBuf[0];
   char* buf = (char*)rawBuf;
-  printf("Received buffer size is: %d\n", buffer_size);
-  read_chardev(buf, buffer_size);
+  printf("Received buffer size is: %d\n", size);
+  read_chardev(buf, size);
   printf("Handle signal OK!\n");
 
   return 0;

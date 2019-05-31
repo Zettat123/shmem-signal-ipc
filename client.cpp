@@ -7,7 +7,7 @@
 
 #include "FanzaiIPCClient.h"
 
-#define BUFFER_SIZE 4 + 2
+#define BUFFER_SIZE 65536 + 10
 
 string CLIENT_NAME = "test_client";
 string SERVICE_NAME = "CHARDEV_SERVICE";
@@ -17,8 +17,6 @@ FanzaiIPCClient* fic;
 void handler(void* rawBuf) {
   char* buf = (char*)rawBuf;
   printf("%s\n", buf);
-
-  delete fic;
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
@@ -30,10 +28,18 @@ int main(int argc, char* argv[]) {
   int size = atoi(argv[2]);
 
   fic = new FanzaiIPCClient(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
+
   fic->setRawHandler(rawHandler);
   fic->updateHandler(handler);
 
-  fic->sendMessage(handler);
+  int i = 0;
+  for (i; i < times; i++) {
+    int* paramsBuf = (int*)fic->getShmemBuf();
+    paramsBuf[0] = size;
+    fic->sendMessage();
+  }
+
+  delete fic;
 
   return 0;
 }

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-// #include "FanzaiIPC.h"
 #include "FanzaiIPCService.h"
 
 FanzaiIPCService::FanzaiIPCService(string serviceName, pid_t servicePid) {
@@ -40,7 +39,7 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
 
   this->serviceSignalHandler(this->ssm[clientPid].buf, bufferSize);
   union sigval sv;
-  sv.sival_int = 999;
+  sv.sival_int = 306;
   sigqueue(clientPid, FANZAI_SIGNAL, sv);
 }
 

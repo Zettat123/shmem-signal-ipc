@@ -9,7 +9,6 @@
 #include <iostream>
 #include <utility>
 
-// #include "FanzaiIPC.h"
 #include "FanzaiIPCClient.h"
 
 FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
@@ -26,6 +25,8 @@ FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
   this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferSize);
   close(this->shmemFd);
 }
+
+void* FanzaiIPCClient::getShmemBuf() { return this->shmemBuf; }
 
 void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                void* context) {
@@ -47,8 +48,7 @@ void FanzaiIPCClient::setRawHandler(RawSigactionHandler handler) {
   this->rawHandler = handler;
 }
 
-int FanzaiIPCClient::sendMessage(ClientSignalHandler handler) {
-  // TODO: add callback
+int FanzaiIPCClient::sendMessage() {
   union sigval sv;
   sv.sival_int = this->bufferSize;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
