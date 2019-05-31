@@ -17,6 +17,8 @@ FanzaiIPCClient* fic;
 void handler(void* rawBuf) {
   char* buf = (char*)rawBuf;
   printf("%s\n", buf);
+
+  delete fic;
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
