@@ -19,21 +19,24 @@ void printMap(FanzaiProcessMap fsm) {
   cout << "Print map finish" << endl;
 }
 
-int FanzaiIPC::createShmemFd(string name, int size) {
-  int fd = shm_open(name.data(), O_CREAT | O_RDWR | O_EXCL, 0777);
+int FanzaiIPC::createShmemFd(string name, int length) {
+  int fd = shm_open(name.data(), O_CREAT | O_RDWR, 0777);
 
   if (fd < 0) {
     fd = shm_open(name.data(), O_RDWR, 0777);
-
-    ftruncate(fd, size);
   }
+
+  int ftret = ftruncate(fd, length);
 
   return fd;
 }
 
-char* FanzaiIPC::createShmemBuf(int length, int fd) {
-  return (char*)mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+void* FanzaiIPC::createShmemBuf(int fd, int length) {
+  return mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 }
+
+void FanzaiIPC::munmapBuf(void* buf, int length) { munmap(buf, length); }
+void FanzaiIPC::unlinkShmem(string name) { shm_unlink(name.data()); }
 
 FanzaiProcessMap FanzaiIPC::readMapFromFile(string mapFile) {
   FanzaiProcessMap resultMap;

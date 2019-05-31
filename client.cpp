@@ -7,56 +7,31 @@
 
 #include "FanzaiIPCClient.h"
 
-#define BUFFER_SIZE 65536 + 10
+#define BUFFER_SIZE 4 + 2
 
-string CLIENT_NAME = "/test_client";
+string CLIENT_NAME = "test_client";
 string SERVICE_NAME = "CHARDEV_SERVICE";
 
-void handler() {}
+FanzaiIPCClient* fic;
+
+void handler(void* rawBuf) {
+  char* buf = (char*)rawBuf;
+  printf("%s\n", buf);
+}
+
+void rawHandler(int signum, siginfo_t* info, void* context) {
+  fic->wrapServiceSignalHandler(signum, info, context);
+}
 
 int main(int argc, char* argv[]) {
   int times = atoi(argv[1]);
   int size = atoi(argv[2]);
 
-  FanzaiIPCClient fic(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
+  fic = new FanzaiIPCClient(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
+  fic->setRawHandler(rawHandler);
+  fic->updateHandler(handler);
 
-  IPCMetadata* metadataPtr = (IPCMetadata*)malloc(sizeof(IPCMetadata));
-
-  printf("%d\n", sizeof(IPCMetadata));
-
-  metadataPtr->clientName = CLIENT_NAME.data();
-  metadataPtr->bufferSize = BUFFER_SIZE;
-  metadataPtr->type = 0;
-  metadataPtr->params = NULL;
-
-  printf("%s\n", metadataPtr->clientName);
-  printf("%d\n", metadataPtr->bufferSize);
-  printf("%d\n", metadataPtr->type);
-
-  fic.sendMessage(metadataPtr, handler);
-
-  // int i = 0;
-
-  // struct timeval tv0, tv1;
-  // gettimeofday(&tv0, NULL);
-
-  // for (i; i < times; i++) {
-  //   c2sbuf[0] = size;
-  //   char lasts2ccounter = s2cbuf[0];
-  //   kill(server_pid, FANZAI_SIGNAL);
-  //   while (s2cbuf[0] == lasts2ccounter)
-  //     ;
-  //   s2cbuf[sizeof(char) + size] = '\0';
-  //   printf("%s\n", s2cbuf + sizeof(char));
-
-  //   // sleep(1);
-  // }
-
-  // gettimeofday(&tv1, NULL);
-
-  // printf("time0 = %ld.%ld\ntime1 = %ld.%ld\nInterval = %ld us\n", tv0.tv_sec,
-  //        tv0.tv_usec, tv1.tv_sec, tv1.tv_usec,
-  //        (tv1.tv_sec - tv0.tv_sec) * 1000000 + (tv1.tv_usec - tv0.tv_usec));
+  fic->sendMessage(handler);
 
   return 0;
 }

@@ -19,29 +19,43 @@ FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
   this->clientPid = clientPid;
   this->bufferSize = bufferSize;
 
-  if (FanzaiIPC::insertProcessToMap(clientName, clientPid,
-                                    CLIENT_MAP_FILE_LOCATION) == -1) {
-    throw "Same client name error\n";
-  }
-
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 
-  this->shmemFd = FanzaiIPC::createShmemFd(clientName.data(), bufferSize);
-  this->shmemBuf = FanzaiIPC::createShmemBuf(bufferSize, this->shmemFd);
+  this->shmemFd = FanzaiIPC::createShmemFd(to_string(clientPid), bufferSize);
+  this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferSize);
+  close(this->shmemFd);
 }
 
-int FanzaiIPCClient::sendMessage(IPCMetadata* metadata,
-                                 ClientSignalHandler handler) {
+void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
+                                               void* context) {
+  this->clientSignalHandler(this->shmemBuf);
+}
+
+int FanzaiIPCClient::updateHandler(ClientSignalHandler newHandler) {
+  this->clientSignalHandler = newHandler;
+
+  struct sigaction sa;
+  sa.sa_sigaction = this->rawHandler;
+  sa.sa_flags = SA_SIGINFO;
+  sigaction(FANZAI_SIGNAL, &sa, NULL);
+
+  return 0;
+}
+
+void FanzaiIPCClient::setRawHandler(RawSigactionHandler handler) {
+  this->rawHandler = handler;
+}
+
+int FanzaiIPCClient::sendMessage(ClientSignalHandler handler) {
   // TODO: add callback
   union sigval sv;
-  // sv.sival_ptr = (void*)metadata;
-  sv.sival_int = 666;
+  sv.sival_int = this->bufferSize;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 
 FanzaiIPCClient::~FanzaiIPCClient() {
-  FanzaiIPC::removeProcessFromMap(this->clientName, CLIENT_MAP_FILE_LOCATION);
-  shm_unlink(this->clientName.data());
-  printf("Service %s has been removed.\n", this->clientName.data());
+  FanzaiIPC::munmapBuf(this->shmemBuf, bufferSize);
+  FanzaiIPC::unlinkShmem(to_string(this->clientPid).data());
+  printf("Client %s has been removed.\n", this->clientName.data());
 }

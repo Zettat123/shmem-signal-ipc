@@ -1,17 +1,21 @@
 #include <signal.h>
 #include "FanzaiIPC.h"
 
-typedef int (*ServiceSignalHandler)(char *, int);
-typedef void (*RawSigactionHandler)(int, siginfo_t *, void *);
+typedef int (*ServiceSignalHandler)(void *, int);
+
+typedef struct sm {
+  int fd;
+  void *buf;
+  int length;
+} Shmem;
+
+typedef map<pid_t, Shmem> ServiceShmemMap;
 
 class FanzaiIPCService : public FanzaiIPC {
  private:
-  string clientName;
   string serviceName;
-  pid_t clientPid;
   pid_t servicePid;
-  int shmemFd;
-  char *shmemBuf;
+  ServiceShmemMap ssm;
   ServiceSignalHandler serviceSignalHandler;
   RawSigactionHandler rawHandler;
 

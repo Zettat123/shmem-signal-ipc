@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <map>
 #include <string>
 
@@ -8,6 +9,7 @@
 using namespace std;
 
 typedef map<string, pid_t> FanzaiProcessMap;
+typedef void (*RawSigactionHandler)(int, siginfo_t*, void*);
 
 /**
  * type:
@@ -25,7 +27,9 @@ class FanzaiIPC {
  private:
  public:
   static int createShmemFd(string name, int size);
-  static char* createShmemBuf(int length, int fd);
+  static void* createShmemBuf(int length, int fd);
+  static void munmapBuf(void* buf, int length);
+  static void unlinkShmem(string name);
   static FanzaiProcessMap readMapFromFile(string mapFile);
   static int writeMapToFile(FanzaiProcessMap newMap, string mapFile);
   static int insertProcessToMap(string name, pid_t pid, string mapFile);
