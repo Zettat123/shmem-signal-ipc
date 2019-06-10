@@ -26,11 +26,23 @@ FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
   close(this->shmemFd);
 }
 
-void* FanzaiIPCClient::getShmemBuf() { return this->shmemBuf; }
+void* FanzaiIPCClient::getShmemBuf() {
+  return this->shmemBuf + FANZAI_PARAMS_LENGTH;
+}
 
 void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                void* context) {
-  this->clientSignalHandler(this->shmemBuf);
+  int type = info->si_value.sival_int;
+
+  switch (type) {
+    case 0:
+      this->clientSignalHandler(this->shmemBuf + FANZAI_PARAMS_LENGTH);
+      break;
+
+    case 1:
+      this->removeShmem();
+      break;
+  }
 }
 
 int FanzaiIPCClient::updateHandler(ClientSignalHandler newHandler) {
@@ -49,13 +61,31 @@ void FanzaiIPCClient::setRawHandler(RawSigactionHandler handler) {
 }
 
 int FanzaiIPCClient::sendMessage() {
+  int* fanzaiParams = (int*)this->shmemBuf;
+  fanzaiParams[0] = 0;
+
   union sigval sv;
   sv.sival_int = this->bufferSize;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 
-FanzaiIPCClient::~FanzaiIPCClient() {
+int FanzaiIPCClient::closeConnection() {
+  int* fanzaiParams = (int*)this->shmemBuf;
+  fanzaiParams[0] = 1;
+
+  union sigval sv;
+  sv.sival_int = this->bufferSize;
+  sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
+}
+
+int FanzaiIPCClient::removeShmem() {
   FanzaiIPC::munmapBuf(this->shmemBuf, bufferSize);
   FanzaiIPC::unlinkShmem(to_string(this->clientPid).data());
+  printf("Connection closed.\n");
+
+  return 0;
+}
+
+FanzaiIPCClient::~FanzaiIPCClient() {
   printf("Client %s has been removed.\n", this->clientName.data());
 }

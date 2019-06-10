@@ -16,7 +16,7 @@ string SERVICE_NAME = "CHARDEV_SERVICE";
 
 FanzaiIPCClient* fic;
 
-void handler(void* rawBuf) {
+void handler(char* rawBuf) {
   char* buf = (char*)rawBuf;
   printf("%s\n", buf);
 }
@@ -41,6 +41,8 @@ int main(int argc, char* argv[]) {
     barrier();
     fic->sendMessage();
   }
+
+  fic->closeConnection();
 
   delete fic;
 

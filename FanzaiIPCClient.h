@@ -1,6 +1,6 @@
 #include "FanzaiIPC.h"
 
-typedef void (*ClientSignalHandler)(void *);
+typedef void (*ClientSignalHandler)(char *);
 // void (*sa_sigaction)(int, siginfo_t *, void *);
 
 class FanzaiIPCClient {
@@ -11,9 +11,10 @@ class FanzaiIPCClient {
   pid_t servicePid;
   int bufferSize;
   int shmemFd;
-  void *shmemBuf;
+  char *shmemBuf;
   ClientSignalHandler clientSignalHandler;
   RawSigactionHandler rawHandler;
+  int removeShmem();
 
  public:
   FanzaiIPCClient(string clientName, string serviceName, pid_t clientPid,
@@ -23,6 +24,7 @@ class FanzaiIPCClient {
   void setRawHandler(RawSigactionHandler handler);
   void wrapServiceSignalHandler(int signum, siginfo_t *info, void *context);
   int sendMessage();
+  int closeConnection();
 
   ~FanzaiIPCClient();
 };

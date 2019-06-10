@@ -1,11 +1,11 @@
 #include <signal.h>
 #include "FanzaiIPC.h"
 
-typedef int (*ServiceSignalHandler)(void *, int);
+typedef int (*ServiceSignalHandler)(char *, int);
 
 typedef struct sm {
   int fd;
-  void *buf;
+  char *buf;
   int length;
 } Shmem;
 
@@ -18,6 +18,7 @@ class FanzaiIPCService : public FanzaiIPC {
   ServiceShmemMap ssm;
   ServiceSignalHandler serviceSignalHandler;
   RawSigactionHandler rawHandler;
+  int closeConnection(pid_t clientPid);
 
  public:
   FanzaiIPCService(string serviceName, pid_t servicePid);

@@ -6,6 +6,8 @@
 #define SERVICE_MAP_FILE_LOCATION "/home/fanzai/FanzaiServiceMap.dat"
 #define CLIENT_MAP_FILE_LOCATION "/home/fanzai/FanzaiClientMap.dat"
 
+#define FANZAI_PARAMS_LENGTH 64 + 16
+
 using namespace std;
 
 typedef map<string, pid_t> FanzaiProcessMap;
@@ -27,7 +29,7 @@ class FanzaiIPC {
  private:
  public:
   static int createShmemFd(string name, int size);
-  static void* createShmemBuf(int length, int fd);
+  static char* createShmemBuf(int length, int fd);
   static void munmapBuf(void* buf, int length);
   static void unlinkShmem(string name);
   static FanzaiProcessMap readMapFromFile(string mapFile);

@@ -37,10 +37,22 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
     this->ssm[clientPid] = sm;
   }
 
-  this->serviceSignalHandler(this->ssm[clientPid].buf, bufferSize);
-  union sigval sv;
-  sv.sival_int = 306;
-  sigqueue(clientPid, FANZAI_SIGNAL, sv);
+  int* fanzaiParams = (int*)this->ssm[clientPid].buf;
+
+  if (fanzaiParams[0] == 0) {
+    this->serviceSignalHandler(this->ssm[clientPid].buf + FANZAI_PARAMS_LENGTH,
+                               bufferSize);
+    union sigval sv;
+    sv.sival_int = 0;
+    sigqueue(clientPid, FANZAI_SIGNAL, sv);
+  } else if (fanzaiParams[0] == 1) {
+    printf("Connection will be closed.\n");
+    this->closeConnection(clientPid);
+    union sigval sv;
+    sv.sival_int = 1;
+    sigqueue(clientPid, FANZAI_SIGNAL, sv);
+    printf("Connection close completed.\n");
+  }
 }
 
 int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
@@ -50,6 +62,14 @@ int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
   sa.sa_sigaction = this->rawHandler;
   sa.sa_flags = SA_SIGINFO;
   sigaction(FANZAI_SIGNAL, &sa, NULL);
+
+  return 0;
+}
+
+int FanzaiIPCService::closeConnection(pid_t clientPid) {
+  ServiceShmemMap::iterator it = this->ssm.find(clientPid);
+  FanzaiIPC::munmapBuf(it->second.buf, it->second.length);
+  FanzaiIPC::unlinkShmem(to_string(it->first));
 
   return 0;
 }

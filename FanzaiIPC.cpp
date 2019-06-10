@@ -26,16 +26,19 @@ int FanzaiIPC::createShmemFd(string name, int length) {
     fd = shm_open(name.data(), O_RDWR, 0777);
   }
 
-  int ftret = ftruncate(fd, length);
+  int ftret = ftruncate(fd, length + FANZAI_PARAMS_LENGTH);
 
   return fd;
 }
 
-void* FanzaiIPC::createShmemBuf(int fd, int length) {
-  return mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+char* FanzaiIPC::createShmemBuf(int fd, int length) {
+  return (char*)mmap(NULL, length + FANZAI_PARAMS_LENGTH,
+                     PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 }
 
-void FanzaiIPC::munmapBuf(void* buf, int length) { munmap(buf, length); }
+void FanzaiIPC::munmapBuf(void* buf, int length) {
+  munmap(buf, length + FANZAI_PARAMS_LENGTH);
+}
 void FanzaiIPC::unlinkShmem(string name) { shm_unlink(name.data()); }
 
 FanzaiProcessMap FanzaiIPC::readMapFromFile(string mapFile) {

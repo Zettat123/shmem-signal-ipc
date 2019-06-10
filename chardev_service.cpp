@@ -18,7 +18,7 @@ void read_chardev(char* buffer, int size) {
   buffer[i] = '\0';
 }
 
-int handler(void* rawBuf, int buffer_size) {
+int handler(char* rawBuf, int buffer_size) {
   int* paramsBuf = (int*)rawBuf;
   int size = paramsBuf[0];
   char* buf = (char*)rawBuf;
