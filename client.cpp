@@ -9,6 +9,8 @@
 
 #define BUFFER_SIZE 65536 + 10
 
+#define barrier() __asm__ __volatile__("" ::: "memory")
+
 string CLIENT_NAME = "test_client";
 string SERVICE_NAME = "CHARDEV_SERVICE";
 
@@ -36,6 +38,7 @@ int main(int argc, char* argv[]) {
   for (i; i < times; i++) {
     int* paramsBuf = (int*)fic->getShmemBuf();
     paramsBuf[0] = size;
+    barrier();
     fic->sendMessage();
   }
 
