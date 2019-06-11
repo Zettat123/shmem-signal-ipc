@@ -34,6 +34,8 @@ void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                void* context) {
   int type = info->si_value.sival_int;
 
+  printf("type = %d\n", type);
+
   switch (type) {
     case 0:
       this->clientSignalHandler(this->shmemBuf + FANZAI_PARAMS_LENGTH);
