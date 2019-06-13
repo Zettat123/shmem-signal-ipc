@@ -39,6 +39,7 @@ char* FanzaiIPC::createShmemBuf(int fd, int length) {
 void FanzaiIPC::munmapBuf(void* buf, int length) {
   munmap(buf, length + FANZAI_PARAMS_LENGTH);
 }
+
 void FanzaiIPC::unlinkShmem(string name) { shm_unlink(name.data()); }
 
 FanzaiProcessMap FanzaiIPC::readMapFromFile(string mapFile) {

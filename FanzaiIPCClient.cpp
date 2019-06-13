@@ -42,7 +42,8 @@ void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
       break;
 
     case 1:
-      this->removeShmem();
+      // this->removeShmem();
+      printf("SB\n");
       break;
   }
 }
@@ -72,17 +73,16 @@ int FanzaiIPCClient::sendMessage() {
 }
 
 int FanzaiIPCClient::closeConnection() {
-  int* fanzaiParams = (int*)this->shmemBuf;
-  fanzaiParams[0] = 1;
+  this->removeShmem();
 
   union sigval sv;
-  sv.sival_int = this->bufferSize;
+  sv.sival_int = -1;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 
 int FanzaiIPCClient::removeShmem() {
-  FanzaiIPC::munmapBuf(this->shmemBuf, bufferSize);
-  FanzaiIPC::unlinkShmem(to_string(this->clientPid).data());
+  FanzaiIPC::munmapBuf((void*)this->shmemBuf, this->bufferSize);
+  FanzaiIPC::unlinkShmem(to_string(this->clientPid));
   printf("Connection closed.\n");
 
   return 0;

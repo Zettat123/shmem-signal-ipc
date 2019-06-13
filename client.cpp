@@ -15,46 +15,42 @@ string CLIENT_NAME = "test_client";
 string SERVICE_NAME = "CHARDEV_SERVICE";
 
 FanzaiIPCClient* fic;
+int times, size, count;
 
 void handler(char* rawBuf) {
+  count++;
   char* buf = (char*)rawBuf;
   printf("%s\n", buf);
+  if (count == times) {
+    printf("count == times\n");
+    fic->closeConnection();
+    delete fic;
+  }
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
   fic->wrapServiceSignalHandler(signum, info, context);
 }
 
-void fuckHandler(int signum, siginfo_t* info, void* context) {
-  printf("FUCK\n");
-}
-
 int main(int argc, char* argv[]) {
-  int times = atoi(argv[1]);
-  int size = atoi(argv[2]);
+  times = atoi(argv[1]);
+  size = atoi(argv[2]);
+  count = 0;
 
   fic = new FanzaiIPCClient(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
 
   fic->setRawHandler(rawHandler);
   fic->updateHandler(handler);
 
-  //*********************************
-  // struct sigaction sa;
-  // sa.sa_sigaction = fuckHandler;
-  // sa.sa_flags = SA_SIGINFO;
-  // sigaction(FANZAI_SIGNAL, &sa, NULL);
-  //*********************************
-
   int i = 0;
   for (i; i < times; i++) {
     int* paramsBuf = (int*)fic->getShmemBuf();
     paramsBuf[0] = size;
-    // barrier();
     fic->sendMessage();
     sleep(1);
   }
 
-  fic->closeConnection();
+  // fic->closeConnection();
 
   // delete fic;
 
