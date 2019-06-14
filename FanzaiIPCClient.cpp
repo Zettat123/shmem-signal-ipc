@@ -12,17 +12,17 @@
 #include "FanzaiIPCClient.h"
 
 FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
-                                 pid_t clientPid, int bufferSize) {
+                                 pid_t clientPid, int bufferLength) {
   this->clientName = clientName;
   this->serviceName = serviceName;
   this->clientPid = clientPid;
-  this->bufferSize = bufferSize;
+  this->bufferLength = bufferLength;
 
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 
-  this->shmemFd = FanzaiIPC::createShmemFd(to_string(clientPid), bufferSize);
-  this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferSize);
+  this->shmemFd = FanzaiIPC::createShmemFd(to_string(clientPid), bufferLength);
+  this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferLength);
   close(this->shmemFd);
 }
 
@@ -34,16 +34,9 @@ void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                void* context) {
   int type = info->si_value.sival_int;
 
-  printf("type = %d\n", type);
-
   switch (type) {
-    case 0:
+    case FANZAI_COMMUNICATION:
       this->clientSignalHandler(this->shmemBuf + FANZAI_PARAMS_LENGTH);
-      break;
-
-    case 1:
-      // this->removeShmem();
-      printf("SB\n");
       break;
   }
 }
@@ -68,7 +61,7 @@ int FanzaiIPCClient::sendMessage() {
   fanzaiParams[0] = 0;
 
   union sigval sv;
-  sv.sival_int = this->bufferSize;
+  sv.sival_int = this->bufferLength;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 
@@ -76,12 +69,12 @@ int FanzaiIPCClient::closeConnection() {
   this->removeShmem();
 
   union sigval sv;
-  sv.sival_int = -1;
+  sv.sival_int = FANZAI_CLOSE_CONNECTION;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 
 int FanzaiIPCClient::removeShmem() {
-  FanzaiIPC::munmapBuf((void*)this->shmemBuf, this->bufferSize);
+  FanzaiIPC::munmapBuf((void*)this->shmemBuf, this->bufferLength);
   FanzaiIPC::unlinkShmem(to_string(this->clientPid));
   printf("Connection closed.\n");
 

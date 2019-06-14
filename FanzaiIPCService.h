@@ -6,7 +6,7 @@ typedef int (*ServiceSignalHandler)(char *, int);
 typedef struct sm {
   int fd;
   char *buf;
-  int length;
+  int bufferLength;
 } Shmem;
 
 typedef map<pid_t, Shmem> ServiceShmemMap;
