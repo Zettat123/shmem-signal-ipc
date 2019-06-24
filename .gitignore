@@ -3,4 +3,5 @@ chardev_service
 *.out
 *.o
 *.so
+*.a
 .vscode
