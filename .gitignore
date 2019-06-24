@@ -2,4 +2,5 @@ client
 chardev_service
 *.out
 *.o
+*.so
 .vscode

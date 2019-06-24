@@ -5,7 +5,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "FanzaiIPCClient.h"
+#include <FanzaiIPCClient.h>
 
 #define BUFFER_SIZE 65536 + 10
 
