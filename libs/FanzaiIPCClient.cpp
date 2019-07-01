@@ -18,10 +18,7 @@ FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
   this->clientPid = clientPid;
   this->bufferLength = bufferLength;
 
-  printf("1\n");
   this->shmemFileName = FANZAI_SHARED_MEMORY_FILE_NAME(clientPid);
-  cout << this->shmemFileName << endl;
-  printf("2\n");
 
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
