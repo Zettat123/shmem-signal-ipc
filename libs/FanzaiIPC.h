@@ -4,6 +4,8 @@
 
 #define FANZAI_SIGNAL SIGUSR1
 #define SERVICE_MAP_FILE_LOCATION "/home/fanzai/FanzaiServiceMap.dat"
+#define FANZAI_SHARED_MEMORY_FILE_NAME(x) \
+  "Fanzai-" + to_string(x)  // x is pid of client
 
 #define FANZAI_PARAMS_LENGTH 64 + 16
 

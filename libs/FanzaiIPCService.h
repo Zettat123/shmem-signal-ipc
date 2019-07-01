@@ -9,7 +9,7 @@ typedef struct sm {
   int bufferLength;
 } Shmem;
 
-typedef map<pid_t, Shmem> ServiceShmemMap;
+typedef map<string, Shmem> ServiceShmemMap;
 
 class FanzaiIPCService : public FanzaiIPC {
  private:

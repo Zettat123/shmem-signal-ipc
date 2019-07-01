@@ -33,19 +33,20 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
 
   if (signalInfo > 0) {
     int bufferLength = signalInfo;
+    string shmemFileName = FANZAI_SHARED_MEMORY_FILE_NAME(clientPid);
 
-    ServiceShmemMap::iterator it = this->ssm.find(clientPid);
+    ServiceShmemMap::iterator it = this->ssm.find(shmemFileName);
     if (it == ssm.end()) {
       Shmem sm;
-      sm.fd = FanzaiIPC::createShmemFd(to_string(clientPid), bufferLength);
+      sm.fd = FanzaiIPC::createShmemFd(shmemFileName, bufferLength);
       sm.buf = FanzaiIPC::createShmemBuf(sm.fd, bufferLength);
       sm.bufferLength = bufferLength;
       close(sm.fd);
-      this->ssm[clientPid] = sm;
+      this->ssm[shmemFileName] = sm;
     }
 
-    this->serviceSignalHandler(this->ssm[clientPid].buf + FANZAI_PARAMS_LENGTH,
-                               bufferLength);
+    this->serviceSignalHandler(
+        this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, bufferLength);
     union sigval sv;
     sv.sival_int = FANZAI_COMMUNICATION;
     sigqueue(clientPid, FANZAI_SIGNAL, sv);
@@ -76,10 +77,11 @@ int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
 }
 
 int FanzaiIPCService::closeConnection(pid_t clientPid) {
-  ServiceShmemMap::iterator it = this->ssm.find(clientPid);
+  string shmemFileName = FANZAI_SHARED_MEMORY_FILE_NAME(clientPid);
+  ServiceShmemMap::iterator it = this->ssm.find(shmemFileName);
 
   FanzaiIPC::munmapBuf((void*)it->second.buf, it->second.bufferLength);
-  FanzaiIPC::unlinkShmem(to_string(it->first));
+  FanzaiIPC::unlinkShmem(it->first);
   this->ssm.erase(it);
 
   return 0;
@@ -90,7 +92,7 @@ FanzaiIPCService::~FanzaiIPCService() {
   ServiceShmemMap::iterator it = this->ssm.begin();
   for (it; it != ssm.end(); it++) {
     FanzaiIPC::munmapBuf(it->second.buf, it->second.bufferLength);
-    FanzaiIPC::unlinkShmem(to_string(it->first));
+    FanzaiIPC::unlinkShmem(it->first);
   }
   printf("Service %s has been removed.\n", this->serviceName.data());
 }

@@ -12,6 +12,7 @@ class FanzaiIPCClient {
   int bufferLength;
   int shmemFd;
   char *shmemBuf;
+  string shmemFileName;
   ClientSignalHandler clientSignalHandler;
   RawSigactionHandler rawHandler;
   int removeShmem();
