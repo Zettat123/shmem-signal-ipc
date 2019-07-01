@@ -1,7 +1,7 @@
 #include <signal.h>
 #include "FanzaiIPC.h"
 
-typedef int (*ServiceSignalHandler)(char *, int);
+typedef int (*ServiceSignalHandler)(char *, int, pid_t);
 
 typedef struct sm {
   int fd;
@@ -25,6 +25,7 @@ class FanzaiIPCService : public FanzaiIPC {
   int updateHandler(ServiceSignalHandler newHandler);
   void wrapServiceSignalHandler(int signum, siginfo_t *info, void *context);
   void setRawHandler(RawSigactionHandler rsh);
+  void signalClient(pid_t clientPid, int signalType);
 
   ~FanzaiIPCService();
 };

@@ -22,6 +22,12 @@ void FanzaiIPCService::setRawHandler(RawSigactionHandler rsh) {
   this->rawHandler = rsh;
 }
 
+void FanzaiIPCService::signalClient(pid_t clientPid, int signalType) {
+  union sigval sv;
+  sv.sival_int = signalType;
+  sigqueue(clientPid, FANZAI_SIGNAL, sv);
+}
+
 void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
                                                 void* context) {
   pid_t clientPid = info->si_pid;
@@ -46,20 +52,17 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
     }
 
     this->serviceSignalHandler(
-        this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, bufferLength);
-    union sigval sv;
-    sv.sival_int = FANZAI_COMMUNICATION;
-    sigqueue(clientPid, FANZAI_SIGNAL, sv);
+        this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, bufferLength,
+        clientPid);
+
   } else {
     int type = signalInfo;
-    union sigval sv;
 
     switch (type) {
       case FANZAI_CLOSE_CONNECTION:
         printf("Shmem %d will be deleted\n", clientPid);
         this->closeConnection(clientPid);
-        sv.sival_int = FANZAI_CLOSE_CONNECTION;
-        sigqueue(clientPid, FANZAI_SIGNAL, sv);
+        this->signalClient(clientPid, FANZAI_CLOSE_CONNECTION);
         break;
     }
   }

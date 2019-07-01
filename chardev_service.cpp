@@ -18,13 +18,15 @@ void read_chardev(char* buffer, int size) {
   buffer[i] = '\0';
 }
 
-int handler(char* rawBuf, int bufferLength) {
+int handler(char* rawBuf, int bufferLength, pid_t clientPid) {
   int* paramsBuf = (int*)rawBuf;
   int size = paramsBuf[0];
   char* buf = (char*)rawBuf;
+  printf("Current client pid is %d\n", clientPid);
   printf("Received buffer size is: %d\n", size);
   read_chardev(buf, size);
   printf("Handle signal OK!\n");
+  fis->signalClient(clientPid, FANZAI_COMMUNICATION);
 
   return 0;
 }
