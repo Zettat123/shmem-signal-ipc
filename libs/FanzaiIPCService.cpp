@@ -60,7 +60,8 @@ void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
 
     switch (type) {
       case FANZAI_CLOSE_CONNECTION:
-        printf("Shmem %d will be deleted\n", clientPid);
+        printf("Shmem %s will be deleted\n",
+               (FANZAI_SHARED_MEMORY_FILE_NAME(clientPid)).data());
         this->closeConnection(clientPid);
         this->signalClient(clientPid, FANZAI_CLOSE_CONNECTION);
         break;

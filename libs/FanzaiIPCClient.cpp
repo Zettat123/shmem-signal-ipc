@@ -84,5 +84,5 @@ int FanzaiIPCClient::removeShmem() {
 }
 
 FanzaiIPCClient::~FanzaiIPCClient() {
-  printf("Client %s has been removed.\n", this->clientName.data());
+  printf("Client %d has been removed.\n", this->clientPid);
 }
