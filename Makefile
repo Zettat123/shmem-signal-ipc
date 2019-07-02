@@ -1,10 +1,24 @@
-all: client chardev_service
+SUBDIRS = libs
+MAKE = make
+CC = g++ --std=c++11
+CLIBS = -L./libs -lfanzaiipc -lrt
+INCLUDE_DIRS = -I./libs
+TARGETS = client chardev_service
 
-client: client.cpp
-	g++ --std=c++11 -o $@ -I./libs -L./libs client.cpp -lfanzaiipc -lrt 
+all: $(TARGETS) 
 
-chardev_service: chardev_service.cpp
-	g++ --std=c++11 -o $@ -I./libs -L./libs chardev_service.cpp -lfanzaiipc -lrt 
+ECHO:
+	@echo $(SUBDIRS)
+	@echo begin compile
+
+$(SUBDIRS): ECHO
+	$(MAKE) -C $@
+
+$(TARGETS): %: %.cpp $(SUBDIRS)
+	$(CC) -o $@ $< $(INCLUDE_DIRS) $(CLIBS) 
 
 clean:
+	for dir in $(SUBDIRS);\
+	do $(MAKE) -C $$dir clean || exit 1;\
+	done
 	rm client chardev_service
