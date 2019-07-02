@@ -1,5 +1,5 @@
-client
-chardev_service
+*_client
+*_service
 *.out
 *.o
 *.so

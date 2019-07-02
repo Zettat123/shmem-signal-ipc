@@ -11,7 +11,7 @@ typedef struct sm {
 
 typedef map<string, Shmem> ServiceShmemMap;
 
-class FanzaiIPCService : public FanzaiIPC {
+class FanzaiIPCService {
  private:
   string serviceName;
   pid_t servicePid;
