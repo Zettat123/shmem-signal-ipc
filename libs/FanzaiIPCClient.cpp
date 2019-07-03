@@ -59,6 +59,7 @@ void FanzaiIPCClient::setRawHandler(RawSigactionHandler handler) {
 }
 
 int FanzaiIPCClient::sendMessage() {
+  printf("Call sendMessage\n");
   int* fanzaiParams = (int*)this->shmemBuf;
   fanzaiParams[0] = 0;
 

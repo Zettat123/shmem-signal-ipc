@@ -3,7 +3,7 @@ MAKE = make
 CC = g++ --std=c++11
 CLIBS = -L./libs -lfanzaiipc -lrt
 INCLUDE_DIRS = -I./libs
-TARGETS = read_client chardev_service
+TARGETS = read_client chardev_service write_client print_service
 
 all: $(TARGETS) 
 
