@@ -21,4 +21,4 @@ clean:
 	for dir in $(SUBDIRS);\
 	do $(MAKE) -C $$dir clean || exit 1;\
 	done
-	rm client chardev_service
+	rm *_client *_service
