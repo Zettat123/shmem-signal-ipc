@@ -1,7 +1,6 @@
 #include "FanzaiIPC.h"
 
 typedef void (*ClientSignalHandler)(char *);
-// void (*sa_sigaction)(int, siginfo_t *, void *);
 
 class FanzaiIPCClient {
  private:
@@ -24,7 +23,7 @@ class FanzaiIPCClient {
   int updateHandler(ClientSignalHandler newHandler);
   void setRawHandler(RawSigactionHandler handler);
   void wrapServiceSignalHandler(int signum, siginfo_t *info, void *context);
-  int sendMessage();
+  int signalService();
   int closeConnection();
 
   ~FanzaiIPCClient();

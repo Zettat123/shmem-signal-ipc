@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     char* params = (char*)fic->getShmemBuf();
     params[0] = size;
     fillBuffer(params + 1, size);
-    fic->sendMessage();
+    fic->signalService();
     usleep(1000 * 500);
   }
 

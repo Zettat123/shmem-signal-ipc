@@ -58,11 +58,7 @@ void FanzaiIPCClient::setRawHandler(RawSigactionHandler handler) {
   this->rawHandler = handler;
 }
 
-int FanzaiIPCClient::sendMessage() {
-  printf("Call sendMessage\n");
-  int* fanzaiParams = (int*)this->shmemBuf;
-  fanzaiParams[0] = 0;
-
+int FanzaiIPCClient::signalService() {
   union sigval sv;
   sv.sival_int = this->bufferLength;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
