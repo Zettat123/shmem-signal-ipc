@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   for (i; i < times; i++) {
     int* paramsBuf = (int*)fic->getShmemBuf();
     paramsBuf[0] = size;
-    fic->sendMessage();
+    fic->signalService();
     sleep(2);
   }
 
