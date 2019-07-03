@@ -22,7 +22,8 @@ void FanzaiIPCService::setRawHandler(RawSigactionHandler rsh) {
   this->rawHandler = rsh;
 }
 
-void FanzaiIPCService::signalClient(pid_t clientPid, int signalType) {
+void FanzaiIPCService::signalClient(pid_t clientPid,
+                                    FANZAI_SIGNAL_TYPE signalType) {
   union sigval sv;
   sv.sival_int = signalType;
   sigqueue(clientPid, FANZAI_SIGNAL, sv);
@@ -41,7 +42,8 @@ void FanzaiIPCService::wrappedServiceSignalHandler(int signum, siginfo_t* info,
   switch (signalType) {
     case FANZAI_COMMUNICATION:
       this->serviceSignalHandler(
-          this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, clientPid);
+          this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, clientPid,
+          FANZAI_COMMUNICATION);
 
       break;
 
@@ -69,6 +71,10 @@ void FanzaiIPCService::wrappedServiceSignalHandler(int signum, siginfo_t* info,
         close(sm.fd);
         this->ssm[shmemFileName] = sm;
       }
+
+      this->serviceSignalHandler(
+          this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, clientPid,
+          FANZAI_ESTABLISH_CONNECTION);
 
       // Tell client that the connection has been established.
       char* fanzaiParams = this->ssm[shmemFileName].buf;

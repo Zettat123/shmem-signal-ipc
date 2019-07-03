@@ -39,12 +39,15 @@ int main(int argc, char* argv[]) {
   fic->setRawHandler(rawHandler);
   fic->updateHandler(handler);
 
+  char* params = fic->getShmemBuf();
+  params[0] = 74;
+  params[1] = 75;
+  params[2] = 78;
+  params[3] = size;
   fic->establishConnection();
 
   int i = 0;
   for (i; i < times; i++) {
-    int* paramsBuf = (int*)fic->getShmemBuf();
-    paramsBuf[0] = size;
     fic->signalService();
     sleep(1);
   }

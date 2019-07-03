@@ -17,7 +17,7 @@ class FanzaiIPCClient {
 
  public:
   FanzaiIPCClient(string serviceName, pid_t clientPid, int bufferLength);
-  void *getShmemBuf();
+  char *getShmemBuf();
   void updateHandler(ClientSignalHandler newHandler);
   void setRawHandler(RawSigactionHandler handler);
   void wrappedServiceSignalHandler(int signum, siginfo_t *info, void *context);

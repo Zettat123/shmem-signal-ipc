@@ -21,13 +21,13 @@ FanzaiIPCClient::FanzaiIPCClient(string serviceName, pid_t clientPid,
 
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
-}
 
-void FanzaiIPCClient::establishConnection() {
   this->shmemFd = FanzaiIPC::createShmemFd(this->shmemFileName, bufferLength);
   this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferLength);
   close(this->shmemFd);
+}
 
+void FanzaiIPCClient::establishConnection() {
   union sigval sv;
   sv.sival_int = this->bufferLength;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
@@ -41,7 +41,7 @@ void FanzaiIPCClient::establishConnection() {
   }
 }
 
-void* FanzaiIPCClient::getShmemBuf() {
+char* FanzaiIPCClient::getShmemBuf() {
   return this->shmemBuf + FANZAI_PARAMS_LENGTH;
 }
 

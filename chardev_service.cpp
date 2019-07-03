@@ -11,6 +11,7 @@
 string SERVICE_NAME = "CHARDEV_SERVICE";
 
 FanzaiIPCService* fis;
+int size;
 
 void read_chardev(char* buffer, int size) {
   int i = 0;
@@ -18,15 +19,27 @@ void read_chardev(char* buffer, int size) {
   buffer[i] = '\0';
 }
 
-int handler(char* rawBuf, pid_t clientPid) {
-  int* paramsBuf = (int*)rawBuf;
-  int size = paramsBuf[0];
+int handler(char* rawBuf, pid_t clientPid, FANZAI_SIGNAL_TYPE signalType) {
   char* buf = (char*)rawBuf;
-  printf("Current client pid is %d\n", clientPid);
-  printf("Received buffer size is: %d\n", size);
-  read_chardev(buf, size);
-  printf("Handle signal OK!\n");
-  fis->signalClient(clientPid, FANZAI_COMMUNICATION);
+  switch (signalType) {
+    case FANZAI_COMMUNICATION:
+      printf("Current client pid is %d\n", clientPid);
+      printf("Received buffer size is: %d\n", size);
+      read_chardev(buf, size);
+      printf("Handle signal OK!\n");
+      fis->signalClient(clientPid, FANZAI_COMMUNICATION);
+      break;
+
+    case FANZAI_ESTABLISH_CONNECTION:
+      printf("Received establish params: %d, %d, %d\n", rawBuf[0], rawBuf[1],
+             rawBuf[2]);
+      size = rawBuf[3];
+      break;
+
+    default:
+      printf("Wrong signal.\n");
+      break;
+  }
 
   return 0;
 }
