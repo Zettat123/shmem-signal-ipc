@@ -4,7 +4,6 @@
 
 #define BUFFER_SIZE 4096
 
-string CLIENT_NAME = "write_client";
 string SERVICE_NAME = "PRINT_SERVICE";
 
 int times, size, count;
@@ -29,7 +28,7 @@ void fillBuffer(char* buf, int length) {
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
-  fic->wrapServiceSignalHandler(signum, info, context);
+  fic->wrappedServiceSignalHandler(signum, info, context);
 }
 
 int main(int argc, char* argv[]) {
@@ -37,10 +36,12 @@ int main(int argc, char* argv[]) {
   size = atoi(argv[2]);
   count = 0;
 
-  fic = new FanzaiIPCClient(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
+  fic = new FanzaiIPCClient(SERVICE_NAME, getpid(), BUFFER_SIZE);
 
   fic->setRawHandler(rawHandler);
   fic->updateHandler(handler);
+
+  fic->establishConnection();
 
   for (int i = 0; i < times; i++) {
     char* params = (char*)fic->getShmemBuf();

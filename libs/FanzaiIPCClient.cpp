@@ -11,9 +11,8 @@
 
 #include "FanzaiIPCClient.h"
 
-FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
-                                 pid_t clientPid, int bufferLength) {
-  this->clientName = clientName;
+FanzaiIPCClient::FanzaiIPCClient(string serviceName, pid_t clientPid,
+                                 int bufferLength) {
   this->serviceName = serviceName;
   this->clientPid = clientPid;
   this->bufferLength = bufferLength;
@@ -22,18 +21,32 @@ FanzaiIPCClient::FanzaiIPCClient(string clientName, string serviceName,
 
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
+}
 
+void FanzaiIPCClient::establishConnection() {
   this->shmemFd = FanzaiIPC::createShmemFd(this->shmemFileName, bufferLength);
   this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferLength);
   close(this->shmemFd);
+
+  union sigval sv;
+  sv.sival_int = this->bufferLength;
+  sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
+
+  char* fanzaiParams = this->shmemBuf;
+  fanzaiParams[0] = 0;
+
+  // Wait for connection established.
+  while (fanzaiParams[0] == 0) {
+    usleep(1000 * 100);
+  }
 }
 
 void* FanzaiIPCClient::getShmemBuf() {
   return this->shmemBuf + FANZAI_PARAMS_LENGTH;
 }
 
-void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
-                                               void* context) {
+void FanzaiIPCClient::wrappedServiceSignalHandler(int signum, siginfo_t* info,
+                                                  void* context) {
   int type = info->si_value.sival_int;
 
   switch (type) {
@@ -43,28 +56,26 @@ void FanzaiIPCClient::wrapServiceSignalHandler(int signum, siginfo_t* info,
   }
 }
 
-int FanzaiIPCClient::updateHandler(ClientSignalHandler newHandler) {
+void FanzaiIPCClient::updateHandler(ClientSignalHandler newHandler) {
   this->clientSignalHandler = newHandler;
 
   struct sigaction sa;
   sa.sa_sigaction = this->rawHandler;
   sa.sa_flags = SA_SIGINFO;
   sigaction(FANZAI_SIGNAL, &sa, NULL);
-
-  return 0;
 }
 
 void FanzaiIPCClient::setRawHandler(RawSigactionHandler handler) {
   this->rawHandler = handler;
 }
 
-int FanzaiIPCClient::signalService() {
+void FanzaiIPCClient::signalService() {
   union sigval sv;
-  sv.sival_int = this->bufferLength;
+  sv.sival_int = FANZAI_COMMUNICATION;
   sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 }
 
-int FanzaiIPCClient::closeConnection() {
+void FanzaiIPCClient::closeConnection() {
   this->removeShmem();
 
   union sigval sv;

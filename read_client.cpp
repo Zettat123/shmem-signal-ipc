@@ -9,7 +9,6 @@
 
 #define BUFFER_SIZE 65536 + 10
 
-string CLIENT_NAME = "test_client";
 string SERVICE_NAME = "CHARDEV_SERVICE";
 
 FanzaiIPCClient* fic;
@@ -17,7 +16,6 @@ int times, size, count;
 
 void handler(char* rawBuf) {
   count++;
-  sleep(2);
   char* buf = (char*)rawBuf;
   printf("%s\n", buf);
   if (count == times) {
@@ -28,7 +26,7 @@ void handler(char* rawBuf) {
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
-  fic->wrapServiceSignalHandler(signum, info, context);
+  fic->wrappedServiceSignalHandler(signum, info, context);
 }
 
 int main(int argc, char* argv[]) {
@@ -36,17 +34,19 @@ int main(int argc, char* argv[]) {
   size = atoi(argv[2]);
   count = 0;
 
-  fic = new FanzaiIPCClient(CLIENT_NAME, SERVICE_NAME, getpid(), BUFFER_SIZE);
+  fic = new FanzaiIPCClient(SERVICE_NAME, getpid(), BUFFER_SIZE);
 
   fic->setRawHandler(rawHandler);
   fic->updateHandler(handler);
+
+  fic->establishConnection();
 
   int i = 0;
   for (i; i < times; i++) {
     int* paramsBuf = (int*)fic->getShmemBuf();
     paramsBuf[0] = size;
     fic->signalService();
-    sleep(2);
+    sleep(1);
   }
 
   return 0;

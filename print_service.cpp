@@ -5,7 +5,7 @@
 string SERVICE_NAME = "PRINT_SERVICE";
 FanzaiIPCService* fis;
 
-int handler(char* rawBuf, int bufferLength, pid_t clientPid) {
+int handler(char* rawBuf, pid_t clientPid) {
   printf("%s\n", rawBuf + 1);
 
   fis->signalClient(clientPid, FANZAI_COMMUNICATION);
@@ -14,7 +14,7 @@ int handler(char* rawBuf, int bufferLength, pid_t clientPid) {
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
-  fis->wrapServiceSignalHandler(signum, info, context);
+  fis->wrappedServiceSignalHandler(signum, info, context);
 }
 
 int main() {

@@ -4,7 +4,6 @@ typedef void (*ClientSignalHandler)(char *);
 
 class FanzaiIPCClient {
  private:
-  string clientName;
   string serviceName;
   pid_t clientPid;
   pid_t servicePid;
@@ -17,14 +16,14 @@ class FanzaiIPCClient {
   int removeShmem();
 
  public:
-  FanzaiIPCClient(string clientName, string serviceName, pid_t clientPid,
-                  int bufferLength);
+  FanzaiIPCClient(string serviceName, pid_t clientPid, int bufferLength);
   void *getShmemBuf();
-  int updateHandler(ClientSignalHandler newHandler);
+  void updateHandler(ClientSignalHandler newHandler);
   void setRawHandler(RawSigactionHandler handler);
-  void wrapServiceSignalHandler(int signum, siginfo_t *info, void *context);
-  int signalService();
-  int closeConnection();
+  void wrappedServiceSignalHandler(int signum, siginfo_t *info, void *context);
+  void establishConnection();
+  void signalService();
+  void closeConnection();
 
   ~FanzaiIPCClient();
 };

@@ -18,7 +18,7 @@ void read_chardev(char* buffer, int size) {
   buffer[i] = '\0';
 }
 
-int handler(char* rawBuf, int bufferLength, pid_t clientPid) {
+int handler(char* rawBuf, pid_t clientPid) {
   int* paramsBuf = (int*)rawBuf;
   int size = paramsBuf[0];
   char* buf = (char*)rawBuf;
@@ -32,7 +32,7 @@ int handler(char* rawBuf, int bufferLength, pid_t clientPid) {
 }
 
 void rawHandler(int signum, siginfo_t* info, void* context) {
-  fis->wrapServiceSignalHandler(signum, info, context);
+  fis->wrappedServiceSignalHandler(signum, info, context);
 }
 
 int main() {

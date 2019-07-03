@@ -28,56 +28,63 @@ void FanzaiIPCService::signalClient(pid_t clientPid, int signalType) {
   sigqueue(clientPid, FANZAI_SIGNAL, sv);
 }
 
-void FanzaiIPCService::wrapServiceSignalHandler(int signum, siginfo_t* info,
-                                                void* context) {
+void FanzaiIPCService::wrappedServiceSignalHandler(int signum, siginfo_t* info,
+                                                   void* context) {
   pid_t clientPid = info->si_pid;
   /**
    * If signalInfo > 0, it is bufferSize.
    * Or it represents other operations.
    */
-  int signalInfo = info->si_value.sival_int;
+  int signalType = info->si_value.sival_int;
+  string shmemFileName = FANZAI_SHARED_MEMORY_FILE_NAME(clientPid);
 
-  if (signalInfo > 0) {
-    int bufferLength = signalInfo;
-    string shmemFileName = FANZAI_SHARED_MEMORY_FILE_NAME(clientPid);
+  switch (signalType) {
+    case FANZAI_COMMUNICATION:
+      this->serviceSignalHandler(
+          this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, clientPid);
 
-    ServiceShmemMap::iterator it = this->ssm.find(shmemFileName);
-    if (it == ssm.end()) {
-      Shmem sm;
-      sm.fd = FanzaiIPC::createShmemFd(shmemFileName, bufferLength);
-      sm.buf = FanzaiIPC::createShmemBuf(sm.fd, bufferLength);
-      sm.bufferLength = bufferLength;
-      close(sm.fd);
-      this->ssm[shmemFileName] = sm;
-    }
+      break;
 
-    this->serviceSignalHandler(
-        this->ssm[shmemFileName].buf + FANZAI_PARAMS_LENGTH, bufferLength,
-        clientPid);
+    case FANZAI_CLOSE_CONNECTION:
+      printf("Connection %s will be closed.\n",
+             (FANZAI_SHARED_MEMORY_FILE_NAME(clientPid)).data());
+      this->closeConnection(clientPid);
+      this->signalClient(clientPid, FANZAI_CLOSE_CONNECTION);
+      break;
 
-  } else {
-    int type = signalInfo;
+    default:
+      if (signalType <= 0) {
+        printf("Error signal type.\n");
+        return;
+      }
+      // Establish connection
+      int bufferLength = signalType;
 
-    switch (type) {
-      case FANZAI_CLOSE_CONNECTION:
-        printf("Shmem %s will be deleted\n",
-               (FANZAI_SHARED_MEMORY_FILE_NAME(clientPid)).data());
-        this->closeConnection(clientPid);
-        this->signalClient(clientPid, FANZAI_CLOSE_CONNECTION);
-        break;
-    }
+      ServiceShmemMap::iterator it = this->ssm.find(shmemFileName);
+      if (it == ssm.end()) {
+        Shmem sm;
+        sm.fd = FanzaiIPC::createShmemFd(shmemFileName, bufferLength);
+        sm.buf = FanzaiIPC::createShmemBuf(sm.fd, bufferLength);
+        sm.bufferLength = bufferLength;
+        close(sm.fd);
+        this->ssm[shmemFileName] = sm;
+      }
+
+      // Tell client that the connection has been established.
+      char* fanzaiParams = this->ssm[shmemFileName].buf;
+      fanzaiParams[0] = 1;
+
+      break;
   }
 }
 
-int FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
+void FanzaiIPCService::updateHandler(ServiceSignalHandler newHandler) {
   this->serviceSignalHandler = newHandler;
 
   struct sigaction sa;
   sa.sa_sigaction = this->rawHandler;
   sa.sa_flags = SA_SIGINFO;
   sigaction(FANZAI_SIGNAL, &sa, NULL);
-
-  return 0;
 }
 
 int FanzaiIPCService::closeConnection(pid_t clientPid) {
