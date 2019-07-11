@@ -44,9 +44,8 @@ int main(int argc, char* argv[]) {
   fic->establishConnection();
 
   for (int i = 0; i < times; i++) {
-    char* params = (char*)fic->getShmemBuf();
-    params[0] = size;
-    fillBuffer(params + 1, size);
+    char* buf = (char*)fic->getShmemBuf();
+    fillBuffer(buf, size);
     fic->signalService();
     usleep(1000 * 500);
   }
