@@ -2,9 +2,8 @@
 
 基于共享内存和信号的进程间通信机制
 
-**Before Use**
+**使用之前需先执行以下命令**
 
-Run the commands below.
 ```
 sudo mkdir /home/fanzai
 sudo chmod 777 /home/fanzai
