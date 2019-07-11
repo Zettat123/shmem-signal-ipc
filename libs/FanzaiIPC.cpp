@@ -10,6 +10,7 @@
 
 #include "FanzaiIPC.h"
 
+// 调试用打印 map
 void printMap(FanzaiProcessMap fsm) {
   FanzaiProcessMap::iterator it = fsm.begin();
   cout << "Print map start" << endl;
@@ -73,10 +74,7 @@ int FanzaiIPC::insertProcessToMap(string name, pid_t pid, string mapFile) {
   FanzaiProcessMap fsm = FanzaiIPC::readMapFromFile(mapFile);
 
   FanzaiProcessMap::iterator it = fsm.find(name);
-  // if (it != fsm.end()) {
-  //   // Same name service has been running
-  //   return -1;
-  // }
+  // TODO: 处理重名服务的情况
   fsm[name] = pid;
 
   FanzaiIPC::writeMapToFile(fsm, mapFile);

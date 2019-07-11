@@ -59,7 +59,7 @@ class FanzaiIPC {
    * @brief  从文件中建立服务名称-服务进程号 map
    * @note
    * @param  mapFile: 保存 map 的文件
-   * @retval
+   * @retval 新的 map
    */
   static FanzaiProcessMap readMapFromFile(string mapFile);
   /**
@@ -67,7 +67,7 @@ class FanzaiIPC {
    * @note
    * @param  newMap: 要保存的 map
    * @param  mapFile: 要保存为的文件
-   * @retval
+   * @retval 成功返回 0
    */
   static int writeMapToFile(FanzaiProcessMap newMap, string mapFile);
   /**
@@ -76,7 +76,7 @@ class FanzaiIPC {
    * @param  name: 服务名称
    * @param  pid: 服务进程号
    * @param  mapFile: 保存 map 的文件
-   * @retval
+   * @retval 成功返回 0
    */
   static int insertProcessToMap(string name, pid_t pid, string mapFile);
   /**
@@ -84,7 +84,7 @@ class FanzaiIPC {
    * @note
    * @param  name: 服务名称
    * @param  mapFile: 保存 map 的文件
-   * @retval
+   * @retval 成功返回 0
    */
   static int removeProcessFromMap(string name, string mapFile);
   /**
@@ -92,7 +92,7 @@ class FanzaiIPC {
    * @note
    * @param  name: 服务名称
    * @param  mapFile: 保存 map 的文件
-   * @retval
+   * @retval 该服务 PID
    */
   static pid_t getPidByName(string name, string mapFile);
 };
