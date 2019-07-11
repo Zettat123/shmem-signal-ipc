@@ -8,17 +8,19 @@
 
 #include "FanzaiIPCService.h"
 
-string SERVICE_NAME = "CHARDEV_SERVICE";
+string SERVICE_NAME = "CHARDEV_SERVICE";  // 服务名称
 
-FanzaiIPCService* fis;
-int size;
+FanzaiIPCService* fis;  // FanzaiIPCService 对象
+int size;               // 要读取的字符个数
 
+// 模仿从设备中读取数据
 void read_chardev(char* buffer, int size) {
   int i = 0;
   for (i; i < size; i++) buffer[i] = 'a';
   buffer[i] = '\0';
 }
 
+// 信号处理函数
 int handler(char* rawBuf, pid_t clientPid, FANZAI_SIGNAL_TYPE signalType) {
   char* buf = (char*)rawBuf;
   switch (signalType) {
@@ -44,6 +46,7 @@ int handler(char* rawBuf, pid_t clientPid, FANZAI_SIGNAL_TYPE signalType) {
   return 0;
 }
 
+// 用于 sigaction 的 handler
 void rawHandler(int signum, siginfo_t* info, void* context) {
   fis->wrappedServiceSignalHandler(signum, info, context);
 }

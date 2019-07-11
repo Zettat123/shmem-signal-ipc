@@ -7,13 +7,14 @@
 
 #include "FanzaiIPCClient.h"
 
-#define BUFFER_SIZE 65536 + 10
+#define BUFFER_SIZE 65536 + 10  // 共享内存长度
 
-string SERVICE_NAME = "CHARDEV_SERVICE";
+string SERVICE_NAME = "CHARDEV_SERVICE";  // 要请求的服务名
 
-FanzaiIPCClient* fic;
-int times, size, count;
+FanzaiIPCClient* fic;  // FanzaiIPCClient 对象
+int times, size, count;  // 请求次数,每次请求要读取的字符个数,计数器
 
+// 信号处理函数
 void handler(char* rawBuf) {
   count++;
   char* buf = (char*)rawBuf;
@@ -25,6 +26,7 @@ void handler(char* rawBuf) {
   }
 }
 
+// 用于 sigaction 的 handler
 void rawHandler(int signum, siginfo_t* info, void* context) {
   fic->wrappedServiceSignalHandler(signum, info, context);
 }
@@ -40,10 +42,11 @@ int main(int argc, char* argv[]) {
   fic->updateHandler(handler);
 
   char* params = fic->getShmemBuf();
-  params[0] = 74;
-  params[1] = 75;
-  params[2] = 78;
-  params[3] = size;
+  params[0] = 74;  // 供测试,无意义
+  params[1] = 75;  // 供测试,无意义
+  params[2] = 78;  // 供测试,无意义
+  params[3] =
+      size;  // 把每次请求要读取的字符个数放置于共享内存中,服务在建立连接时读取
   fic->establishConnection();
 
   int i = 0;
