@@ -19,7 +19,7 @@ using namespace std;
 
 typedef map<string, pid_t> FanzaiProcessMap;  // 服务名称-服务进程号的 map 类型
 typedef void (*RawSigactionHandler)(int, siginfo_t*,
-                                    void*);  // 用于 sigaction 的回调函数类型
+                                    void*);  // 用于 sigaction 的 handler 类型
 
 class FanzaiIPC {
  private:
@@ -37,13 +37,13 @@ class FanzaiIPC {
    * @note
    * @param  fd: 共享内存文件描述符
    * @param  length: 共享内存长度
-   * @retval 指向共享内存区段首地址的指针
+   * @retval 指向共享内存区段的指针
    */
   static char* createShmemBuf(int fd, int length);
   /**
    * @brief 释放共享内存区段
    * @note
-   * @param  buf: 指向共享内存区段首地址的指针
+   * @param  buf: 指向共享内存区段的指针
    * @param  length: 共享内存长度
    * @retval None
    */
