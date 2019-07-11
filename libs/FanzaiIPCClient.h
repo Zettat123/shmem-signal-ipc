@@ -1,6 +1,10 @@
 #include "FanzaiIPC.h"
 
-// 客户端的信号 handler 函数类型
+/**
+ * @brief  客户端的信号 handler 函数类型
+ * @note   1 个参数,指向共享内存区段的指针
+ * @retval
+ */
 typedef void (*ClientSignalHandler)(char *);
 
 class FanzaiIPCClient {
@@ -12,7 +16,7 @@ class FanzaiIPCClient {
   string shmemFileName;                     // 共享内存文件名
   int shmemFd;                              // 共享内存文件描述符
   char *shmemBuf;                           // 指向共享内存区段的指针
-  ClientSignalHandler clientSignalHandler;  // 信号处理函数
+  ClientSignalHandler clientSignalHandler;  // 信号 handler
   RawSigactionHandler rawHandler;           // 用于 sigaction 的 handler
   int removeShmem();
 
@@ -33,16 +37,16 @@ class FanzaiIPCClient {
    */
   char *getShmemBuf();
   /**
-   * @brief  更新信号处理函数
+   * @brief  更新信号 handler
    * @note
-   * @param  newHandler: 新的信号处理函数
+   * @param  newHandler: 新的信号 handler
    * @retval None
    */
   void updateHandler(ClientSignalHandler newHandler);
   /**
    * @brief  更新用于 sigaction 的 handler
    * @note
-   * @param  handler:
+   * @param  handler: 新的 handler
    * @retval None
    */
   void setRawHandler(RawSigactionHandler handler);
