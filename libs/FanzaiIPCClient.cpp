@@ -30,10 +30,11 @@ FanzaiIPCClient::FanzaiIPCClient(string serviceName, pid_t clientPid,
 void FanzaiIPCClient::establishConnection() {
   union sigval sv;
   sv.sival_int = this->bufferLength;
-  sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 
   char* fanzaiParams = this->shmemBuf;
   fanzaiParams[0] = 0;
+
+  sigqueue(this->servicePid, FANZAI_SIGNAL, sv);
 
   // Wait for connection established.
   while (fanzaiParams[0] == 0) {
