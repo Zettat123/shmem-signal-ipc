@@ -5,9 +5,7 @@
 #define FANZAI_SIGNAL SIGUSR1
 #define SERVICE_MAP_FILE_LOCATION \
   "/home/fanzai/FanzaiServiceMap.dat"  // 默认的服务名称-服务进程号映射文件保存位置
-#define FANZAI_SHARED_MEMORY_FILE_NAME(x) \
-  "Fanzai-" + to_string(x)  // 用于 IPC 的共享内存文件名,为 Fanzai-<客户端 PID>.
-                            // x 为客户端 PID
+
 #define FANZAI_PARAMS_LENGTH 64 + 16  // 预留参数用长度,目前为 64 字节
 
 #define FANZAI_SIGNAL_TYPE int          // 信号携带的参数
@@ -25,36 +23,31 @@ class FanzaiIPC {
  private:
  public:
   /**
-   * @brief  创建共享内存文件描述符
+   * @brief  创建共享内存
    * @note
-   * @param  name: 共享内存文件名
-   * @param  length: 共享内存长度
-   * @retval 共享内存文件描述符
+   * @param  length: 共享内存的大小
+   * @retval 共享内存标识符
    */
-  static int createShmemFd(string name, int length);
+  static int createShmemID(int key, int length);
   /**
-   * @brief  申请一段共享内存
+   * @brief  将共享内存连接到当前进程空间
    * @note
-   * @param  fd: 共享内存文件描述符
-   * @param  length: 共享内存长度
-   * @retval 指向共享内存区段的指针
+   * @param  shmemID: 共享内存标识符
+   * @retval 共享内存首地址
    */
-  static char* createShmemBuf(int fd, int length);
+  static char* createShmemBuf(int shmemID);
   /**
-   * @brief 释放共享内存区段
+   * @brief  将共享内存从当前进程分离
    * @note
-   * @param  buf: 指向共享内存区段的指针
-   * @param  length: 共享内存长度
-   * @retval None
+   * @param  buf: 共享内存首地址
    */
-  static void munmapBuf(void* buf, int length);
+  static void removeShmemBuf(void* buf);
   /**
-   * @brief 删除共享内存文件
+   * @brief  删除共享内存
    * @note
-   * @param  name: 共享内存文件名
-   * @retval None
+   * @param  shmemID: 共享内存标识符
    */
-  static void unlinkShmem(string name);
+  static void removeShmem(int shmemID);
   /**
    * @brief  从文件中建立服务名称-服务进程号 map
    * @note

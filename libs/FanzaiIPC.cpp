@@ -7,6 +7,9 @@
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <stdio.h>
 
 #include "FanzaiIPC.h"
 
@@ -20,28 +23,41 @@ void printMap(FanzaiProcessMap fsm) {
   cout << "Print map finish" << endl;
 }
 
-int FanzaiIPC::createShmemFd(string name, int length) {
-  int fd = shm_open(name.data(), O_CREAT | O_RDWR, 0777);
 
-  if (fd < 0) {
-    fd = shm_open(name.data(), O_RDWR, 0777);
+int FanzaiIPC::createShmemID(int key, int length){
+  int shmid;
+  size_t size = FANZAI_PARAMS_LENGTH + length;
+  shmid = shmget((key_t)key, size, 0666|IPC_CREAT);
+  if (shmid < 0) {
+      printf("Shmget failed: %d\n",errno);
+  }
+  //printf("shmid: %d\n",shmid);
+  return shmid;
+}
+
+char* FanzaiIPC::createShmemBuf(int shmemID){
+  char *shm;
+
+  shm = (char*)shmat(shmemID, NULL, 0);
+  if ((int)(*shm) == -1) {
+      printf("Shmat failed\n");
   }
 
-  int ftret = ftruncate(fd, length + FANZAI_PARAMS_LENGTH);
-
-  return fd;
+  return shm;
 }
 
-char* FanzaiIPC::createShmemBuf(int fd, int length) {
-  return (char*)mmap(NULL, length + FANZAI_PARAMS_LENGTH,
-                     PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+void FanzaiIPC::removeShmemBuf(void* buf){
+  if(shmdt(buf) == -1){
+    printf("Shmdt failed\n");
+  }
 }
 
-void FanzaiIPC::munmapBuf(void* buf, int length) {
-  munmap(buf, length + FANZAI_PARAMS_LENGTH);
+void FanzaiIPC::removeShmem(int shmemID){
+  if(shmctl(shmemID, IPC_RMID, NULL) == -1)
+	{
+    printf("Shmctl(IPC_RMID) failed: %d\n", errno);
+	}
 }
-
-void FanzaiIPC::unlinkShmem(string name) { shm_unlink(name.data()); }
 
 FanzaiProcessMap FanzaiIPC::readMapFromFile(string mapFile) {
   FanzaiProcessMap resultMap;
