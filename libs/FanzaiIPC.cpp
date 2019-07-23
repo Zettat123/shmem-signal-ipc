@@ -24,10 +24,10 @@ void printMap(FanzaiProcessMap fsm) {
 }
 
 
-int FanzaiIPC::createShmemID(int length){
+int FanzaiIPC::createShmemID(int key, int length){
   int shmid;
   size_t size = FANZAI_PARAMS_LENGTH + length;
-  shmid = shmget((key_t)FANZAI_SHARED_MEMORY_KEY, size, 0666|IPC_CREAT);
+  shmid = shmget((key_t)key, size, 0666|IPC_CREAT);
   if (shmid < 0) {
       printf("Shmget failed: %d\n",errno);
   }

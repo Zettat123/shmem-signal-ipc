@@ -66,7 +66,7 @@ void FanzaiIPCService::wrappedServiceSignalHandler(int signum, siginfo_t* info,
       ServiceShmemMap::iterator it = this->ssm.find(shmemPid);
       if (it == ssm.end()) {
         Shmem sm;
-        sm.id = FanzaiIPC::createShmemID(bufferLength);
+        sm.id = FanzaiIPC::createShmemID(clientPid, bufferLength);
         sm.buf = FanzaiIPC::createShmemBuf(sm.id);
         sm.bufferLength = bufferLength;
         this->ssm[shmemPid] = sm;

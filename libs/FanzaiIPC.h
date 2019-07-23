@@ -6,7 +6,6 @@
 #define SERVICE_MAP_FILE_LOCATION \
   "/home/fanzai/FanzaiServiceMap.dat"  // 默认的服务名称-服务进程号映射文件保存位置
 
-#define FANZAI_SHARED_MEMORY_KEY 8765  // 创建共享内存时的key
 #define FANZAI_PARAMS_LENGTH 64 + 16  // 预留参数用长度,目前为 64 字节
 
 #define FANZAI_SIGNAL_TYPE int          // 信号携带的参数
@@ -29,7 +28,7 @@ class FanzaiIPC {
    * @param  length: 共享内存的大小
    * @retval 共享内存标识符
    */
-  static int createShmemID(int length);
+  static int createShmemID(int key, int length);
   /**
    * @brief  将共享内存连接到当前进程空间
    * @note

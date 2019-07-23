@@ -21,7 +21,7 @@ FanzaiIPCClient::FanzaiIPCClient(string serviceName, pid_t clientPid,
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 
-  this->shmemID = FanzaiIPC::createShmemID(bufferLength);
+  this->shmemID = FanzaiIPC::createShmemID(clientPid, bufferLength);
   this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemID);
 }
 
