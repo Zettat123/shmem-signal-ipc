@@ -1,0 +1,82 @@
+#include <fcntl.h>
+#include <signal.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string>
+
+#include "FanzaiIPCService.h"
+#include "sndcapture.h"
+
+string SERVICE_NAME = "CHARDEV_SERVICE";  // 服务名称
+
+FanzaiIPCService* fis;  // FanzaiIPCService 对象
+int size;               // 要读取的字符个数
+
+// 模仿从设备中读取数据
+void read_chardev(char* buffer, int size) {
+  int i = 0;
+  for (i; i < size; i++) buffer[i] = 'a';
+  buffer[i] = '\0';
+}
+
+// 将long long转换为char array
+void longLong2CharArr(char* buf, long long num){
+  char *arr = buf;
+	int shift = 56;
+	for(int i=7;i>=0;i--)
+	{
+		long long temp = num<<shift;
+		arr[i] = temp>>56;
+		shift-=8;
+	}
+	return;
+}
+
+// 信号处理函数
+int handler(char* rawBuf, pid_t clientPid, FANZAI_SIGNAL_TYPE signalType) {
+  char* buf = (char*)rawBuf;
+  long long snd_size;
+  switch (signalType) {
+    case FANZAI_COMMUNICATION:
+      printf("Current client pid is %d\n", clientPid);
+      printf("Received buffer size is: %d\n", size);
+      snd_size = CaptureSound(buf + 8);  //录制音频
+      longLong2CharArr(buf, snd_size);
+      printf("Handle signal OK!\n");
+      fis->signalClient(clientPid, FANZAI_COMMUNICATION);
+      break;
+    
+
+    case FANZAI_ESTABLISH_CONNECTION:
+      printf("Received establish params: %d, %d, %d\n", rawBuf[0], rawBuf[1],
+             rawBuf[2]);
+      size = rawBuf[3];
+      break;
+
+    default:
+      printf("Wrong signal.\n");
+      break;
+  }
+
+  return 0;
+}
+
+// 用于 sigaction 的 handler
+void rawHandler(int signum, siginfo_t* info, void* context) {
+  fis->wrappedServiceSignalHandler(signum, info, context);
+}
+
+int main() {
+  fis = new FanzaiIPCService(SERVICE_NAME, getpid());
+
+  fis->setRawHandler(rawHandler);
+  fis->updateHandler(handler);
+
+  for (;;) {
+    sleep(10000);
+  }
+
+  return 0;
+}

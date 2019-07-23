@@ -10,7 +10,7 @@ typedef int (*ServiceSignalHandler)(char *, pid_t, FANZAI_SIGNAL_TYPE);
 
 // 与某一客户端通信用的共享内存结构
 typedef struct sm {
-  int fd;            // 共享内存文件描述符
+  int id;            // 共享内存文件描述符
   char *buf;         // 指向共享内存区段的指针
   int bufferLength;  // 共享内存长度
 } Shmem;

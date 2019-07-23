@@ -17,14 +17,12 @@ FanzaiIPCClient::FanzaiIPCClient(string serviceName, pid_t clientPid,
   this->clientPid = clientPid;
   this->bufferLength = bufferLength;
 
-  this->shmemFileName = FANZAI_SHARED_MEMORY_FILE_NAME(clientPid);
 
   this->servicePid =
       FanzaiIPC::getPidByName(serviceName, SERVICE_MAP_FILE_LOCATION);
 
-  this->shmemFd = FanzaiIPC::createShmemFd(this->shmemFileName, bufferLength);
-  this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemFd, bufferLength);
-  close(this->shmemFd);
+  this->shmemID = FanzaiIPC::createShmemID(bufferLength);
+  this->shmemBuf = FanzaiIPC::createShmemBuf(this->shmemID);
 }
 
 void FanzaiIPCClient::establishConnection() {
@@ -85,8 +83,8 @@ void FanzaiIPCClient::closeConnection() {
 }
 
 int FanzaiIPCClient::removeShmem() {
-  FanzaiIPC::munmapBuf((void*)this->shmemBuf, this->bufferLength);
-  FanzaiIPC::unlinkShmem(this->shmemFileName);
+  FanzaiIPC::removeShmemBuf((void*)this->shmemBuf);
+  FanzaiIPC::removeShmem(this->shmemID);
   printf("Connection closed.\n");
 
   return 0;

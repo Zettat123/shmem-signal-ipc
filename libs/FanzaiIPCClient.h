@@ -13,8 +13,7 @@ class FanzaiIPCClient {
   pid_t clientPid;                          // 客户端 PID
   pid_t servicePid;                         // 服务 PID
   int bufferLength;                         // 共享内存长度
-  string shmemFileName;                     // 共享内存文件名
-  int shmemFd;                              // 共享内存文件描述符
+  int shmemID;                              // 共享内存标识符
   char *shmemBuf;                           // 指向共享内存区段的指针
   ClientSignalHandler clientSignalHandler;  // 信号 handler
   RawSigactionHandler rawHandler;           // 用于 sigaction 的 handler
