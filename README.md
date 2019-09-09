@@ -34,5 +34,5 @@ sudo chmod 777 /home/fanzai
 ```
 make
 ./chardev_service &
-./read_client 5 8
+./read_client 5 8 1
 ```
