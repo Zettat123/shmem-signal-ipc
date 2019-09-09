@@ -20,9 +20,9 @@ sudo chmod 777 /home/fanzai
 ## Examples
 
 ### 从 service 中读取数据
-`chardev_service.cpp`: 接收客户端请求,向提供的内存区域中写入制定数量的字符 'a'
+`chardev_service.cpp`: 接收客户端请求,向提供的内存区域中写入指定数量的随机字符[a-z]
 
-`read_client.cpp`: 从 chardev_service 中读取数据,接收 2 个命令行参数:第 1 个参数为读取次数,第 2 个参数为每次读取字符个数
+`read_client.cpp`: 从 chardev_service 中读取数据,接收 3 个命令行参数:第 1 个参数为读取次数,第 2 个参数为每次读取字符个数,第 3 个参数为是否打印接收的字符串
 
 
 ### 向 service 写入数据

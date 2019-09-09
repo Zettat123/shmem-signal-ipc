@@ -13,10 +13,13 @@ string SERVICE_NAME = "CHARDEV_SERVICE";  // 要请求的服务名
 
 FanzaiIPCClient* fic;  // FanzaiIPCClient 对象
 int times, size, count;  // 请求次数,每次请求要读取的字符个数,计数器
+int printOrNot;          // 是否打印, 1 Yes; 0 No
 
 // 信号处理函数
 void handler(char* rawBuf) {
   count++;
+  sleep(10);
+  if (printOrNot == 0) return;
   char* buf = (char*)rawBuf;
   printf("%s\n", buf);
   if (count == times) {
@@ -34,6 +37,7 @@ void rawHandler(int signum, siginfo_t* info, void* context) {
 int main(int argc, char* argv[]) {
   times = atoi(argv[1]);
   size = atoi(argv[2]);
+  printOrNot = atoi(argv[3]);
   count = 0;
 
   fic = new FanzaiIPCClient(SERVICE_NAME, getpid(), BUFFER_SIZE);
