@@ -1,8 +1,10 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 #include <string>
 
@@ -16,7 +18,7 @@ int size;               // 要读取的字符个数
 // 模仿从设备中读取数据
 void read_chardev(char* buffer, int size) {
   int i = 0;
-  for (i; i < size; i++) buffer[i] = 'a';
+  for (i; i < size; i++) buffer[i] = 'a' + rand() % 26;
   buffer[i] = '\0';
 }
 
@@ -52,6 +54,8 @@ void rawHandler(int signum, siginfo_t* info, void* context) {
 }
 
 int main() {
+  srand(time(0));
+
   fis = new FanzaiIPCService(SERVICE_NAME, getpid());
 
   fis->setRawHandler(rawHandler);

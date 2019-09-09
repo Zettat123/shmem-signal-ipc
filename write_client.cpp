@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "FanzaiIPCClient.h"
@@ -22,7 +24,7 @@ void handler(char* rawBuf) {
 
 void fillBuffer(char* buf, int length) {
   for (int i = 0; i < length - 1; i++) {
-    buf[i] = (i % 26) + 65;
+    buf[i] = 'A' + rand() % 26;
   }
   buf[length - 1] = '\0';
 }
@@ -32,6 +34,8 @@ void rawHandler(int signum, siginfo_t* info, void* context) {
 }
 
 int main(int argc, char* argv[]) {
+  srand(time(0));
+
   times = atoi(argv[1]);
   size = atoi(argv[2]);
   count = 0;
