@@ -19,9 +19,10 @@ int printOrNot;          // 是否打印, 1 Yes; 0 No
 void handler(char* rawBuf) {
   count++;
   sleep(10);
-  if (printOrNot == 0) return;
-  char* buf = (char*)rawBuf;
-  printf("%s\n", buf);
+  if (printOrNot == 1) {
+    char* buf = (char*)rawBuf;
+    printf("%s\n", buf);
+  }
   if (count == times) {
     printf("count == times\n");
     fic->closeConnection();
